@@ -5,6 +5,7 @@ jorgemf-java-util
 - data structures:
   - trie
   - b-star (memory based)
+  - octree + basic intersection shapes
 - search algorithms
   - a-star (normal and parallel version)
   - genetic algorithm (normal and parallel version)
