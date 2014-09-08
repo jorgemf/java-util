@@ -1,11 +1,19 @@
-jorgemf: set of utilities in java (under construction)
+jorgemf-java-util
 ===========
+ set of utilities in java, data structures, parallel runtime & search algorithms  *(under construction)*
+-----------
 - data structures:
   - trie
-  - b-star
+  - b-star (memory based)
 - search algorithms
-  - a-star
-  - genetic algorithm
+  - a-star (normal and parallel version)
+  - genetic algorithm (normal and parallel version)
+  - genetic programming
+  - nsga-II
   - simulated anealing
+- parallel runtime
+  - run tasks in parallel (thread pool) 
+  - blackboard agents
+  - events
 
 
