@@ -1,7 +1,9 @@
 jorgemf-java-util
 ===========
- set of utilities in java, data structures, parallel runtime & search algorithms  *(under construction)*
+
+set of utilities in java, data structures, parallel runtime & search algorithms  *(under construction)*
 -----------
+
 - data structures:
   - trie
   - b-star (memory based)
@@ -16,5 +18,15 @@ jorgemf-java-util
   - run tasks in parallel (thread pool) 
   - blackboard agents
   - events
+
+
+other ideas for the future:
+---------
+
+- statistical package (something similar to R)
+- graph visualization (at least integration with gnuplot or something similar)
+- clients-service arquitecture (with master)
+- map reduce with network comunication (using previous arquitecture), flume or cloud dataflow for small clusters
+
 
 
