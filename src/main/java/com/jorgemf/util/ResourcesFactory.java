@@ -15,10 +15,13 @@ public abstract class ResourcesFactory<k> {
     }
 
     public ResourcesFactory(int listIncrement) {
+        if (listIncrement <= 0) {
+            throw new RuntimeException("Increment has to be greater than 0");
+        }
+        increment = listIncrement;
         //noinspection unchecked
         resources = (k[]) (new Object[0]);
         lastFreeResource = -1;
-        increment = listIncrement;
     }
 
     protected abstract k createResource();
