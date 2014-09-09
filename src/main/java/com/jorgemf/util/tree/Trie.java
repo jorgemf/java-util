@@ -1,12 +1,12 @@
-package com.jorgemf.util;
+package com.jorgemf.util.tree;
 
 import java.util.*;
 
-public class Trie<k> implements Tree<k> {
+public class Trie<k> {
 
     private int maxDepth;
 
-    private Node root = new Node(null, -1);
+    private TrieNode root = new TrieNode(null, -1);
 
     private HashMap<k, Integer> eventNamesMap = new HashMap<k, Integer>();
 
@@ -33,7 +33,7 @@ public class Trie<k> implements Tree<k> {
             throw new RuntimeException("Sequence is longer than expected");
         }
         depth = Math.max(depth, events.size());
-        Node currentNode = root;
+        TrieNode currentNode = root;
         for (k event : events) {
             currentNode = getOrCreateChildNode(currentNode, getKey(event));
             currentNode.increaseCounter();
@@ -43,7 +43,7 @@ public class Trie<k> implements Tree<k> {
 
     public void addToSequence(k event) {
         if (maxDepth <= 0) {
-            throw new RuntimeException("sequences requires a limit in depth");
+            throw new RuntimeException("Sequences require a limit in depth");
         }
         sequence.addLast(getKey(event));
         if (sequence.size() > maxDepth) {
@@ -51,7 +51,7 @@ public class Trie<k> implements Tree<k> {
         } else {
             depth = Math.max(depth, sequence.size());
         }
-        Node currentNode = root;
+        TrieNode currentNode = root;
         for (int keys : sequence) {
             currentNode = getOrCreateChildNode(currentNode, keys);
             currentNode.increaseCounter();
@@ -63,7 +63,7 @@ public class Trie<k> implements Tree<k> {
         sequence.clear();
     }
 
-    private Node getOrCreateChildNode(Node currentNode, int key) {
+    private TrieNode getOrCreateChildNode(TrieNode currentNode, int key) {
         if (!currentNode.containsChild(key)) {
             size++;
             return currentNode.createChild(key);
@@ -84,46 +84,38 @@ public class Trie<k> implements Tree<k> {
         return key;
     }
 
-    @Override
-    public void visitPreOrder(TreeVisitor<k> visitor) {
-        for (Node n : root.getChildren()) {
+    public void visitPreOrder(TrieVisitor<k> visitor) {
+        for (TrieNode n : root.getChildren()) {
             visitPreOrder(visitor, n);
         }
     }
 
-    private void visitPreOrder(TreeVisitor<k> visitor, Node node) {
-        visitor.visit(eventNamesVector.get(node.getKeyEvent()), node.depth, node.getChildren().size());
-        for (Node n : node.getChildren()) {
+    private void visitPreOrder(TrieVisitor<k> visitor, TrieNode node) {
+        visitor.visit(eventNamesVector.get(node.getKeyEvent()), node.getDepth(), node.getChildren().size());
+        for (TrieNode n : node.getChildren()) {
             visitPreOrder(visitor, n);
         }
     }
 
-    @Override
-    public void visitPostOrder(TreeVisitor<k> visitor) {
-        for (Node n : root.getChildren()) {
+    public void visitPostOrder(TrieVisitor<k> visitor) {
+        for (TrieNode n : root.getChildren()) {
             visitPostOrder(visitor, n);
         }
     }
 
-    private void visitPostOrder(TreeVisitor<k> visitor, Node node) {
-        for (Node n : node.getChildren()) {
+    private void visitPostOrder(TrieVisitor<k> visitor, TrieNode node) {
+        for (TrieNode n : node.getChildren()) {
             visitPostOrder(visitor, n);
         }
-        visitor.visit(eventNamesVector.get(node.getKeyEvent()), node.depth, node.getChildren().size());
+        visitor.visit(eventNamesVector.get(node.getKeyEvent()), node.getDepth(), node.getChildren().size());
     }
 
-    @Override
-    public void visitInOrder(TreeVisitor<k> visitor) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void visitBreadth(TreeVisitor<k> visitor) {
-        Queue<Node> nodesQueue = new LinkedList<Node>();
+    public void visitBreadth(TrieVisitor<k> visitor) {
+        Queue<TrieNode> nodesQueue = new LinkedList<TrieNode>();
         nodesQueue.addAll(root.getChildren());
         nodesQueue.add(null);
-        Node head;
-        Collection<Node> children;
+        TrieNode head;
+        Collection<TrieNode> children;
         int childrenSize;
         while (!nodesQueue.isEmpty()) {
             head = nodesQueue.remove();
@@ -148,66 +140,4 @@ public class Trie<k> implements Tree<k> {
         return totalCounter;
     }
 
-    class Node {
-
-        private int keyEvent;
-
-        private Node parent;
-
-        private TreeMap<Integer, Node> childrend;
-
-        private int counter;
-
-        private int depth;
-
-        Node(Node parent, int keyEvent) {
-            childrend = new TreeMap<Integer, Node>();
-            this.keyEvent = keyEvent;
-            counter = 0;
-            this.parent = parent;
-            if (parent != null) {
-                depth = parent.depth + 1;
-            } else {
-                depth = -1;
-            }
-        }
-
-        private void increaseCounter() {
-            counter++;
-        }
-
-        private int getCounter() {
-            return counter;
-        }
-
-        private boolean containsChild(int key) {
-            return childrend.containsKey(key);
-        }
-
-        private Node getChild(int key) {
-            return childrend.get(key);
-        }
-
-        private Node createChild(int key) {
-            Node node = new Node(this, key);
-            childrend.put(key, node);
-            return node;
-        }
-
-        private int getKeyEvent() {
-            return keyEvent;
-        }
-
-        private Node getParent() {
-            return parent;
-        }
-
-        private Collection<Node> getChildren() {
-            return childrend.values();
-        }
-
-        private int getDepth() {
-            return depth;
-        }
-    }
 }

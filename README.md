@@ -13,7 +13,7 @@ set of utilities in java, data structures, parallel runtime & search algorithms 
   - genetic algorithm (normal and parallel version)
   - genetic programming
   - nsga-II
-  - simulated anealing
+  - simulated annealing
 - parallel runtime
   - run tasks in parallel (thread pool) 
   - blackboard agents
@@ -25,8 +25,8 @@ other ideas for the future:
 
 - statistical package (something similar to R)
 - graph visualization (at least integration with gnuplot or something similar)
-- clients-service arquitecture (with master)
-- map reduce with network comunication (using previous arquitecture), flume or cloud dataflow for small clusters
+- clients-service architecture (with master)
+- map reduce with network communication (using previous architecture), flume or cloud data flow for small clusters
 
 
 
