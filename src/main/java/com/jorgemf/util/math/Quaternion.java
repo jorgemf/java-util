@@ -1,6 +1,10 @@
 package com.jorgemf.util.math;
 
-// http://content.gpwiki.org/index.php/OpenGL:Tutorials:Using_Quaternions_to_represent_rotation
+/**
+ * A Quaternion class, it is a representation of 3D rotations which avoid artifacts when operate with them.
+ *
+ * @link http://content.gpwiki.org/index.php/OpenGL:Tutorials:Using_Quaternions_to_represent_rotation
+ */
 public class Quaternion {
 
     private final static float TOLERANCE = 0.00001f;
@@ -13,10 +17,18 @@ public class Quaternion {
     private float[] matrix;
     private boolean updateMatrix;
 
+    /**
+     * Default constructor with no rotation
+     */
     public Quaternion() {
         this(0, 0, 0, 1);
     }
 
+    /**
+     * Copy constructor
+     *
+     * @param q other quaternion
+     */
     public Quaternion(Quaternion q) {
         this(q.x, q.y, q.z, q.w);
         if (!q.updateMatrix) {
@@ -153,7 +165,12 @@ public class Quaternion {
         this.updateMatrix = true;
     }
 
-    // Convert to Matrix
+
+    /**
+     * Returns a rotation matrix which represents the quaternion
+     *
+     * @return a rotation matrix which represents the quaternion
+     */
     public final float[] getMatrix() {
         if (this.updateMatrix) {
             calculateMatrix();
@@ -222,9 +239,12 @@ public class Quaternion {
         }
     }
 
-    // use with caution, returns the fastest direction of rotation, if u=-v the rotation is returned in z axis
+    /**
+     * Set the angle rotation between two vectors. Use with caution, returns the fastest direction of rotation. If u=-v the rotation is returned in z axis.
+     *
+     * @link http://stackoverflow.com/questions/1171849/finding-quaternion-representing-the-rotation-from-one-vector-to-another
+     */
     public final void setAngle(Vector3f u, Vector3f v) {
-        //http://stackoverflow.com/questions/1171849/finding-quaternion-representing-the-rotation-from-one-vector-to-another
         float dot = u.dot(v);
         float lengths = (float) Math.sqrt(u.length2() * v.length2());
         float angle = dot / lengths;

@@ -140,4 +140,68 @@ public class Trie<k> {
         return totalCounter;
     }
 
+
+    class TrieNode {
+
+        private int keyEvent;
+
+        private TrieNode parent;
+
+        private TreeMap<Integer, TrieNode> childrend;
+
+        private int counter;
+
+        private int depth;
+
+        TrieNode(TrieNode parent, int keyEvent) {
+            childrend = new TreeMap<Integer, TrieNode>();
+            this.keyEvent = keyEvent;
+            counter = 0;
+            this.parent = parent;
+            if (parent != null) {
+                depth = parent.depth + 1;
+            } else {
+                depth = -1;
+            }
+        }
+
+        void increaseCounter() {
+            counter++;
+        }
+
+        int getCounter() {
+            return counter;
+        }
+
+        boolean containsChild(int key) {
+            return childrend.containsKey(key);
+        }
+
+        TrieNode getChild(int key) {
+            return childrend.get(key);
+        }
+
+        TrieNode createChild(int key) {
+            TrieNode node = new TrieNode(this, key);
+            childrend.put(key, node);
+            return node;
+        }
+
+        int getKeyEvent() {
+            return keyEvent;
+        }
+
+        TrieNode getParent() {
+            return parent;
+        }
+
+        Collection<TrieNode> getChildren() {
+            return childrend.values();
+        }
+
+        int getDepth() {
+            return depth;
+        }
+    }
+
 }

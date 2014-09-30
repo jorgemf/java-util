@@ -26,12 +26,16 @@ public class Vector2f {
     }
 
     public final float distanceEuclidean(Vector2f point) {
-        float dx = point.x - x;
-        float dy = point.y - y;
-        return (float) Math.sqrt(dx * dx + dy * dy);
+        return (float) Math.sqrt(distanceEuclidean2(point));
     }
 
-    public final float distanceManhatan(Vector2f point) {
+    public final float distanceEuclidean2(Vector2f point) {
+        float dx = point.x - x;
+        float dy = point.y - y;
+        return dx * dx + dy * dy;
+    }
+
+    public final float distanceManhattan(Vector2f point) {
         float dx = point.x - x;
         float dy = point.y - y;
         return Math.abs(dx) + Math.abs(dy);

@@ -45,7 +45,7 @@ public class Frustum {
     }
 
     // culling using mask for previous calculated points and the diagonal more parallel to the normal of the plane in order to only use two points (n- and p-vertices)
-    // see Optimized view frutsum culling algorithms for bounding boxes, 199, ulf assarsson and tomas moller
+    // see Optimized view frustum culling algorithms for bounding boxes, 199, ulf assarsson and tomas moller
     private CONTAINS frustumPlanesContainsAABB(Vector3f[] points) {
         boolean intersec = false;
         Vector3f nvertex;

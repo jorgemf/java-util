@@ -7,8 +7,7 @@ import com.jorgemf.util.tree.BtreeVisitor;
 import java.util.HashSet;
 import java.util.Vector;
 
-
-public class AstarTree implements BtreeVisitor {
+public class AstarTree implements BtreeVisitor<State> {
 
     private static boolean PRINT_STATS = false;
     private static boolean DEBUG = false;
@@ -74,7 +73,7 @@ public class AstarTree implements BtreeVisitor {
     }
 
     @Override
-    public void visit(State state, int heuristic, int deep) {
+    public void visit(State state, int deep) {
         this.statesFactory.releaseResource(state);
     }
 

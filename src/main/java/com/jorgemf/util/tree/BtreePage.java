@@ -19,7 +19,7 @@ public class BtreePage<k extends Comparable<k>> {
 
     private BtreePage[] auxPages;
 
-    public BtreePage(int numberOfNodes, ResourcesFactory<BtreePage<k>> pagesFactory) {
+    protected BtreePage(int numberOfNodes, ResourcesFactory<BtreePage<k>> pagesFactory) {
         this.size = 0;
         //noinspection unchecked
         this.nodes = (k[]) (new Object[numberOfNodes]);
@@ -86,11 +86,11 @@ public class BtreePage<k extends Comparable<k>> {
         }
     }
 
-    public void add(State state) {
+    public void add(k object) {
         if (this.isLeave()) {
-            this.add(state, null);
+            this.add(object, null);
         } else {
-            this.offspringPages[this.searchPos(state)].add(state);
+            this.offspringPages[this.searchPos(object)].add(object);
         }
     }
 

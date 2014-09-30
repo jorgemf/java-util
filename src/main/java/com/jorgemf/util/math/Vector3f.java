@@ -96,10 +96,7 @@ public class Vector3f {
     }
 
     public final float distanceEuclidean(Vector3f point) {
-        float dx = point.x - x;
-        float dy = point.y - y;
-        float dz = point.z - z;
-        return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+        return (float) Math.sqrt(distanceEuclidean2(point));
     }
 
     public final float distanceEuclidean2(Vector3f point) {
@@ -109,7 +106,7 @@ public class Vector3f {
         return dx * dx + dy * dy + dz * dz;
     }
 
-    public final float distanceManhatan(Vector3f point) {
+    public final float distanceManhattan(Vector3f point) {
         float dx = point.x - x;
         float dy = point.y - y;
         float dz = point.z - z;

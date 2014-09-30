@@ -12,35 +12,26 @@ import java.util.List;
 
 public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode<k>> {
 
-    private OctreeNode root;
+    private OctreeNode<k> root;
 
-    private HashMap<k, OctreeNode> elements;
+    private HashMap<k, OctreeNode<k>> elements;
 
     private ArrayList<k> elementsList;
 
-    private Vector3f minPositionAux;
-
-    private Vector3f maxPositionAux;
-
-    private Vector3f midPositionAux;
-
     public Octree() {
         super();
-        this.root = null;
-        this.elements = new HashMap<k, OctreeNode>();
-        this.minPositionAux = new Vector3f();
-        this.maxPositionAux = new Vector3f();
-        this.midPositionAux = new Vector3f();
-        this.elementsList = new ArrayList<k>();
+        root = null;
+        elements = new HashMap<k, OctreeNode<k>>();
+        elementsList = new ArrayList<k>();
     }
 
-    public synchronized void add(Intersectable element) {
+    public void add(k element) {
         AxisAlignedBoundingCuboid boundingCuboid = element.getAxisAlignedBoundingCuboid();
-        if (this.root == null || !this.root.inside(boundingCuboid)) {
+        if (root == null || !root.contains(boundingCuboid)) {
             growRoot(boundingCuboid);
         }
-        add(this.root, element, boundingCuboid);
-        this.elementsList.add(element);
+        root.add(element, this);
+        elementsList.add(element);
     }
 
     private void growRoot(AxisAlignedBoundingCuboid boundingCuboid) {
@@ -112,26 +103,9 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
         }
     }
 
-    private void add(OctreeNode node, Intersectable intersectable, AxisAlignedBoundingCuboid boundingCuboid) {
-        int contains = node.contains(boundingCuboid);
-        if (contains == 8) {
-            node.getObjects().add(intersectable);
-            elements.put(intersectable, node);
-        } else if (contains >= 0) {
-            OctreeNode nodeAux = node.getNode(contains);
-            if (nodeAux == null) {
-                node.createNode(contains, getResource());
-                nodeAux = node.getNode(contains);
-            }
-            add(nodeAux, intersectable, boundingCuboid);
-        } else {
-            throw new RuntimeException("Object out of the octree cube");
-        }
-    }
-
-    public synchronized void remove(Intersectable intersectable) {
+    public synchronized void remove(k intersectable) {
         this.elementsList.remove(intersectable);
-        OctreeNode node = this.elements.remove(intersectable);
+        OctreeNode<k> node = this.elements.remove(intersectable);
         if (node != null) {
             node.getObjects().remove(intersectable);
             clean(node);
@@ -139,15 +113,13 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
     }
 
     private void pruneRoot() {
-        OctreeNode[] nodes;
-        OctreeNode nodeNotNull;
-        boolean prune = this.root != null && this.root.getObjects().size() > 0;
+        OctreeNode<k>[] nodes;
+        OctreeNode<k> nodeNotNull;
+        boolean prune = root != null && root.getObjects().size() > 0;
         while (prune) {
-            nodes = this.root.getNodes();
+            nodes = root.getNodes();
             nodeNotNull = null;
-            int size = nodes.length;
-            for (int i = 0; i < size; i++) {
-                OctreeNode node = nodes[i];
+            for (OctreeNode<k> node : nodes) {
                 if (node != null) {
                     if (nodeNotNull == null) {
                         nodeNotNull = node;
@@ -156,14 +128,14 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
                     }
                 }
             }
-            prune &= this.root.getObjects().size() > 0;
+            prune &= root.getObjects().size() > 0;
             if (prune) {
-                this.root.deleteNode(nodeNotNull);
-                releaseResource(this.root);
+                root.deleteNode(nodeNotNull);
+                releaseResource(root);
                 if (nodeNotNull == null) {
-                    this.root = null;
+                    root = null;
                 } else {
-                    this.root = nodeNotNull;
+                    root = nodeNotNull;
                     pruneRoot();
                 }
             }
@@ -171,7 +143,7 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
     }
 
     private void clean(OctreeNode node) {
-        if (node.getObjects().size() == 0 && !node.hasChilds()) {
+        if (node.getObjects().size() == 0 && !node.hasChildren()) {
             OctreeNode parent = node.getParent();
             if (parent != null) {
                 parent.deleteNode(node);
@@ -183,43 +155,28 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
         }
     }
 
-    public void movedObject(Drawable3D drawable) {
-        OctreeNode node = this.elements.get(drawable);
-        AxisAlignedBoundingCuboid alignedBox = drawable.getAxisAlignedBoundingCuboid();
+    public void movedObject(k intersectable) {
+        OctreeNode<k> node = elements.get(intersectable);
+        AxisAlignedBoundingCuboid alignedBox = intersectable.getAxisAlignedBoundingCuboid();
         if (node != null) {
-            if (!node.inside(alignedBox)) {
-                remove(drawable);
-                add(drawable);
+            remove(intersectable);
+            if (!node.contains(alignedBox)) {
+                add(intersectable);
             } else {
-                int contains = node.contains(alignedBox);
-                if (contains != 8) {
-                    node.getObjects().remove(drawable);
-                    OctreeNode nodeAux = node.getNode(contains);
-                    if (nodeAux == null) {
-                        node.createNode(contains, getResource());
-                        nodeAux = node.getNode(contains);
-                    }
-                    add(nodeAux, drawable, alignedBox);
-                }
+                node.add(intersectable, this);
             }
         }
     }
 
-    public void frustumCulling(Frustum frustum, List<Drawable3D> elements) {
-        if (this.root != null) {
-            this.root.frustumCulling(frustum, elements);
-        }
-    }
-
-    public void sphereCulling(Vector3f center, float radius, List<Drawable3D> elements) {
-        if (this.root != null) {
-            this.root.sphereCulling(center, radius * radius, elements);
+    public void frustumCulling(Frustum frustum, List<k> elements) {
+        if (root != null) {
+            root.frustumCulling(frustum, elements);
         }
     }
 
     public String toString() {
-        if (this.root != null) {
-            return toString(this.root, "");
+        if (root != null) {
+            return toString(root, "");
         } else {
             return super.toString();
         }
@@ -227,11 +184,9 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
 
     public String toString(OctreeNode node, String tab) {
         String s = tab + node.toString() + "\n";
-        OctreeNode[] nodes = node.getNodes();
-        int size = nodes.length;
-        for (int i = 0; i < size; i++) {
-            if (nodes[i] != null) {
-                s += toString(nodes[i], tab + "\t");
+        for (OctreeNode auxNode : node.getNodes()) {
+            if (auxNode != null) {
+                s += toString(auxNode, tab + "\t");
             }
         }
         return s;
