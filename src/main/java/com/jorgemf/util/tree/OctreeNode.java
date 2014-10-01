@@ -12,9 +12,9 @@ import java.util.List;
 
 public class OctreeNode<k extends Intersectable> extends AxisAlignedBoundingCuboid implements Sphere {
 
-    private static final int X_BIT = 0x4;
-    private static final int Y_BIT = 0x2;
-    private static final int Z_BIT = 0x1;
+    protected static final int X_BIT = 0x4;
+    protected static final int Y_BIT = 0x2;
+    protected static final int Z_BIT = 0x1;
     private OctreeNode<k>[] nodes;
     private List<k> objects;
     private OctreeNode<k> parent;
@@ -22,38 +22,41 @@ public class OctreeNode<k extends Intersectable> extends AxisAlignedBoundingCubo
 
     protected OctreeNode() {
         super(0, 0, 0, 0, 0, 0);
-        this.parent = null;
+        parent = null;
         //noinspection unchecked
-        this.nodes = (OctreeNode<k>[]) (new OctreeNode[8]);
-        this.objects = new ArrayList<k>();
+        nodes = (OctreeNode<k>[]) (new OctreeNode[8]);
+        objects = new ArrayList<k>();
     }
 
     protected void init(OctreeNode parent, Vector3f min, Vector3f max) {
         this.parent = parent;
         setMinMaxPoint(min, max);
-        Vector3f dimension = getDimensions();
-        this.objects.clear();
+        objects.clear();
+        for (int i = 0; i < nodes.length; i++) {
+            nodes[i] = null;
+        }
+        radius = max.distanceEuclidean(min) / 2;
     }
 
     public List<k> getObjects() {
-        return this.objects;
+        return objects;
     }
 
     public OctreeNode[] getNodes() {
-        return this.nodes;
+        return nodes;
     }
 
     public OctreeNode getParent() {
-        return this.parent;
+        return parent;
     }
 
     public void setParent(OctreeNode node) {
-        this.parent = node;
+        parent = node;
     }
 
     @Override
     public float getRadius() {
-        return this.radius;
+        return radius;
     }
 
     @Override
@@ -74,26 +77,14 @@ public class OctreeNode<k extends Intersectable> extends AxisAlignedBoundingCubo
         Vector3f alignedMinPoint = alignedCuboid.getMinPoint();
         Vector3f alignedMaxPoint = alignedCuboid.getMaxPoint();
         Vector3f centerPoint = getCentre();
-        int minPos = 0;
-        if (centerPoint.x < alignedMinPoint.x) {
-            minPos |= X_BIT;
-        }
-        if (centerPoint.y < alignedMinPoint.y) {
-            minPos |= Y_BIT;
-        }
-        if (centerPoint.z < alignedMinPoint.z) {
-            minPos |= Z_BIT;
-        }
-        int maxPos = 0;
-        if (centerPoint.x < alignedMaxPoint.x) {
-            maxPos |= X_BIT;
-        }
-        if (centerPoint.y < alignedMaxPoint.y) {
-            maxPos |= Y_BIT;
-        }
-        if (centerPoint.z < alignedMaxPoint.z) {
-            maxPos |= Z_BIT;
-        }
+        int minPos =
+                (centerPoint.x < alignedMinPoint.x ? X_BIT : 0) |
+                        (centerPoint.y < alignedMinPoint.y ? Y_BIT : 0) |
+                        (centerPoint.z < alignedMinPoint.z ? Z_BIT : 0);
+        int maxPos =
+                (centerPoint.x < alignedMaxPoint.x ? X_BIT : 0) |
+                        (centerPoint.y < alignedMaxPoint.y ? Y_BIT : 0) |
+                        (centerPoint.z < alignedMaxPoint.z ? Z_BIT : 0);
         if (minPos == maxPos) {
             // inside a child
             if (nodes[minPos] == null) {
@@ -120,18 +111,18 @@ public class OctreeNode<k extends Intersectable> extends AxisAlignedBoundingCubo
 
     protected void deleteNode(OctreeNode node) {
         int index = 0;
-        while (this.nodes[index] != node) {
+        while (nodes[index] != node) {
             index++;
         }
-        this.nodes[index] = null;
+        nodes[index] = null;
     }
 
     protected boolean hasChildren() {
         int index = 0;
-        while (index < this.nodes.length && this.nodes[index] == null) {
+        while (index < nodes.length && nodes[index] == null) {
             index++;
         }
-        return index < this.nodes.length;
+        return index < nodes.length;
     }
 
     public void frustumCulling(Frustum frustum, List<k> elements) {
@@ -161,21 +152,18 @@ public class OctreeNode<k extends Intersectable> extends AxisAlignedBoundingCubo
     }
 
     private void cullingAddRecursive(List<k> elements) {
-        int size = this.objects.size();
-        for (int i = 0; i < size; i++) {
-            elements.add(this.objects.get(i));
+        for (k object : objects) {
+            elements.add(object);
         }
-        size = this.nodes.length;
-        for (int i = 0; i < size; i++) {
-            if (this.nodes[i] != null) {
-                this.nodes[i].cullingAddRecursive(elements);
+        for (OctreeNode<k> node : nodes) {
+            if (node != null) {
+                node.cullingAddRecursive(elements);
             }
         }
     }
 
     public String toString() {
         String s = "[" + getMinPoint() + ";" + getMaxPoint() + "]: ";
-        int size = this.objects.size();
         for (Intersectable intersectable : this.objects) {
             s += intersectable + ", ";
         }

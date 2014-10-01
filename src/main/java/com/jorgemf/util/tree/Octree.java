@@ -12,17 +12,26 @@ import java.util.List;
 
 public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode<k>> {
 
+    private static final float DEAFULT_MINIUM_CELL_SIZE = 1f;
     private OctreeNode<k> root;
-
     private HashMap<k, OctreeNode<k>> elements;
-
     private ArrayList<k> elementsList;
+    private float minimumCellSize;
+
 
     public Octree() {
+        this(DEAFULT_MINIUM_CELL_SIZE);
+    }
+
+    public Octree(float minimumCellSize) {
         super();
+        if (minimumCellSize <= 0) {
+            throw new RuntimeException("Minimum cell size should be greater than 0");
+        }
         root = null;
         elements = new HashMap<k, OctreeNode<k>>();
         elementsList = new ArrayList<k>();
+        this.minimumCellSize = minimumCellSize;
     }
 
     public void add(k element) {
@@ -35,71 +44,41 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
     }
 
     private void growRoot(AxisAlignedBoundingCuboid boundingCuboid) {
-        Vector3f position = boundingCuboid.getPosition();
-        Vector3f cubeMaxPosition = boundingCuboid.getMaxPoint();
-        Vector3f cubeMinPosition = boundingCuboid.getMinPoint();
-        float growingRootGrade = 0f;
-        OctreeNode oldRoot = this.root;
-        if (this.root != null) {
-            this.minPositionAux.set(this.root.getMinPosition());
-            this.maxPositionAux.set(this.root.getMaxPosition());
-            this.midPositionAux.set(this.root.getMidPosition());
-            growingRootGrade = this.maxPositionAux.x - this.minPositionAux.x;
-            this.root = null;
+        Vector3f cubPos = boundingCuboid.getPosition();
+        if (root == null) {
+            Vector3f cuboidDimensions = boundingCuboid.getDimensions();
+            float maxDimHalf = Math.max(cuboidDimensions.x, Math.max(cuboidDimensions.y, cuboidDimensions.z)) / 2;
+            float growingRate = minimumCellSize;
+            while (maxDimHalf > growingRate) {
+                growingRate *= 2;
+            }
+            root = createResource();
+            root.init(null,
+                    new Vector3f(cubPos.x - growingRate, cubPos.y - growingRate, cubPos.z - growingRate),
+                    new Vector3f(cubPos.x + growingRate, cubPos.y + growingRate, cubPos.z + growingRate));
         } else {
-            growingRootGrade = 1f;
-            this.midPositionAux.x = (float) Math.floor(position.x) + 0.5f;
-            this.midPositionAux.y = (float) Math.floor(position.y) + 0.5f;
-            this.midPositionAux.z = (float) Math.floor(position.z) + 0.5f;
-            this.minPositionAux.set(this.midPositionAux.x - 0.5f, this.midPositionAux.y - 0.5f, this.midPositionAux.z - 0.5f);
-            this.maxPositionAux.set(this.midPositionAux.x + 0.5f, this.midPositionAux.y + 0.5f, this.midPositionAux.z + 0.5f);
-        }
-        OctreeNode node = null;
-        while (this.root == null) {
-            boolean growX = true;
-            boolean growY = true;
-            boolean growZ = true;
-            if (this.maxPositionAux.x < cubeMaxPosition.x) {
-                growX = true;
-            } else if (this.minPositionAux.x > cubeMinPosition.x) {
-                growX = false;
+            while (!root.contains(boundingCuboid)) {
+                OctreeNode oldRoot = root;
+                root = createResource();
+                oldRoot.setParent(root);
+                Vector3f oldRootDimensions = oldRoot.getDimensions();
+                float growingRate = Math.max(oldRootDimensions.x, Math.max(oldRootDimensions.y, oldRootDimensions.z));
+                Vector3f oldRootPos = oldRoot.getCentre();
+                int numberNode =
+                        (cubPos.x < oldRootPos.x ? OctreeNode.X_BIT : 0) |
+                                (cubPos.y < oldRootPos.y ? OctreeNode.Y_BIT : 0) |
+                                (cubPos.z < oldRootPos.z ? OctreeNode.Z_BIT : 0);
+                Vector3f oldMaxPoint = oldRoot.getMaxPoint();
+                Vector3f oldMinPoint = oldRoot.getMinPoint();
+                Vector3f midPoint = new Vector3f(
+                        (numberNode & OctreeNode.X_BIT) > 0 ? oldMaxPoint.x : oldMinPoint.x,
+                        (numberNode & OctreeNode.Y_BIT) > 0 ? oldMaxPoint.y : oldMinPoint.y,
+                        (numberNode & OctreeNode.Z_BIT) > 0 ? oldMaxPoint.z : oldMinPoint.z);
+                root.init(null,
+                        new Vector3f(midPoint.x - growingRate, midPoint.y - growingRate, midPoint.z - growingRate),
+                        new Vector3f(midPoint.x + growingRate, midPoint.y + growingRate, midPoint.z + growingRate));
+                root.getNodes()[numberNode] = oldRoot;
             }
-            if (this.maxPositionAux.y < cubeMaxPosition.y) {
-                growY = true;
-            } else if (this.minPositionAux.y > cubeMinPosition.y) {
-                growY = false;
-            }
-            if (this.maxPositionAux.z < cubeMaxPosition.z) {
-                growZ = true;
-            } else if (this.minPositionAux.z > cubeMinPosition.z) {
-                growZ = false;
-            }
-            if (growX) {
-                this.maxPositionAux.x += growingRootGrade;
-            } else {
-                this.minPositionAux.x -= growingRootGrade;
-            }
-            if (growY) {
-                this.maxPositionAux.y += growingRootGrade;
-            } else {
-                this.minPositionAux.y -= growingRootGrade;
-            }
-            if (growZ) {
-                this.maxPositionAux.z += growingRootGrade;
-            } else {
-                this.minPositionAux.z -= growingRootGrade;
-            }
-            node = getResource();
-            node.init(null, this.minPositionAux, this.maxPositionAux);
-            if (node.inside(boundingCuboid)) {
-                this.root = node;
-            }
-            if (oldRoot != null) {
-                node.setNode(oldRoot);
-                oldRoot.setParent(node);
-                oldRoot = node;
-            }
-            growingRootGrade *= 2;
         }
     }
 
@@ -115,29 +94,27 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
     private void pruneRoot() {
         OctreeNode<k>[] nodes;
         OctreeNode<k> nodeNotNull;
-        boolean prune = root != null && root.getObjects().size() > 0;
+        boolean prune = root != null && root.getObjects().size() == 0;
+        int nodesNotNullNumber = 0;
         while (prune) {
             nodes = root.getNodes();
             nodeNotNull = null;
+            nodesNotNullNumber = 0;
             for (OctreeNode<k> node : nodes) {
                 if (node != null) {
-                    if (nodeNotNull == null) {
-                        nodeNotNull = node;
-                    } else {
-                        prune = false;
-                    }
+                    nodeNotNull = node;
+                    nodesNotNullNumber++;
                 }
             }
-            prune &= root.getObjects().size() > 0;
-            if (prune) {
-                root.deleteNode(nodeNotNull);
+            if (nodesNotNullNumber <= 1 && root.getObjects().size() == 0) {
                 releaseResource(root);
                 if (nodeNotNull == null) {
                     root = null;
                 } else {
                     root = nodeNotNull;
-                    pruneRoot();
                 }
+            } else {
+                prune = false;
             }
         }
     }
@@ -149,8 +126,8 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
                 parent.deleteNode(node);
                 releaseResource(node);
                 clean(parent);
-            } else {
-                pruneRoot();
+            } else if (node == root) {
+                root = null;
             }
         }
     }
@@ -193,7 +170,7 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
     }
 
     @Override
-    protected OctreeNode createResource() {
+    protected OctreeNode<k> createResource() {
         return new OctreeNode();
     }
 

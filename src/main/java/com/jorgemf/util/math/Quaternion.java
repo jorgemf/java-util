@@ -33,9 +33,9 @@ public class Quaternion {
         this(q.x, q.y, q.z, q.w);
         if (!q.updateMatrix) {
             System.arraycopy(q.matrix, 0, this.matrix, 0, q.matrix.length);
-            this.updateMatrix = false;
+            updateMatrix = false;
         } else {
-            this.updateMatrix = true;
+            updateMatrix = true;
         }
     }
 
@@ -44,7 +44,7 @@ public class Quaternion {
         this.y = y;
         this.z = z;
         this.w = w;
-        this.matrix = new float[16];
+        matrix = new float[16];
         normalise();
         this.updateMatrix = true;
     }
@@ -66,11 +66,11 @@ public class Quaternion {
     }
 
     public final void clear() {
-        this.x = 0;
-        this.y = 0;
-        this.z = 0;
-        this.w = 1;
-        this.updateMatrix = true;
+        x = 0;
+        y = 0;
+        z = 0;
+        w = 1;
+        updateMatrix = true;
     }
 
     // normalising a quaternion works similar to a vector. This method will not do anything
@@ -93,10 +93,10 @@ public class Quaternion {
     }
 
     public final void conjugate() {
-        this.x = -this.x;
-        this.y = -this.y;
-        this.z = -this.z;
-        this.updateMatrix = true;
+        x = -x;
+        y = -y;
+        z = -z;
+        updateMatrix = true;
     }
 
     // Multiplying q1 with q2 applies the rotation q2 to q1
@@ -106,11 +106,11 @@ public class Quaternion {
         float newZ = w * rq.z + z * rq.w + x * rq.y - y * rq.x;
         float newW = w * rq.w - x * rq.x - y * rq.y - z * rq.z;
 
-        this.x = newX;
-        this.y = newY;
-        this.z = newZ;
-        this.w = newW;
-        this.updateMatrix = true;
+        x = newX;
+        y = newY;
+        z = newZ;
+        w = newW;
+        updateMatrix = true;
         normalise();
     }
 
@@ -146,23 +146,23 @@ public class Quaternion {
         // Basically we create 3 Quaternions, one for pitch, one for yaw, one for roll
         // and multiply those together.The calculation below does the same, just shorter
 
-        float r = rx;
-        float p = ry;
-        float y = rz;
+        float roll = rx;
+        float pitch = ry;
+        float yaw = rz;
 
-        float sinp = (float) Math.sin(p);
-        float siny = (float) Math.sin(y);
-        float sinr = (float) Math.sin(r);
-        float cosp = (float) Math.cos(p);
-        float cosy = (float) Math.cos(y);
-        float cosr = (float) Math.cos(r);
+        float sinp = (float) Math.sin(pitch);
+        float siny = (float) Math.sin(yaw);
+        float sinr = (float) Math.sin(roll);
+        float cosp = (float) Math.cos(pitch);
+        float cosy = (float) Math.cos(yaw);
+        float cosr = (float) Math.cos(roll);
 
-        this.x = sinr * cosp * cosy - cosr * sinp * siny;
-        this.y = cosr * sinp * cosy + sinr * cosp * siny;
-        this.z = cosr * cosp * siny - sinr * sinp * cosy;
-        this.w = cosr * cosp * cosy + sinr * sinp * siny;
-        this.normalise();
-        this.updateMatrix = true;
+        x = sinr * cosp * cosy - cosr * sinp * siny;
+        y = cosr * sinp * cosy + sinr * cosp * siny;
+        z = cosr * cosp * siny - sinr * sinp * cosy;
+        w = cosr * cosp * cosy + sinr * sinp * siny;
+        normalise();
+        updateMatrix = true;
     }
 
 
@@ -172,11 +172,11 @@ public class Quaternion {
      * @return a rotation matrix which represents the quaternion
      */
     public final float[] getMatrix() {
-        if (this.updateMatrix) {
+        if (updateMatrix) {
             calculateMatrix();
-            this.updateMatrix = false;
+            updateMatrix = false;
         }
-        return this.matrix;
+        return matrix;
     }
 
     private void calculateMatrix() {
@@ -191,22 +191,22 @@ public class Quaternion {
         float wz = w * z;
 
         // This calculation would be a lot more complicated for non-unit length quaternions
-        this.matrix[0] = 1.0f - 2.0f * (y2 + z2);
-        this.matrix[1] = 2.0f * (xy - wz);
-        this.matrix[2] = 2.0f * (xz + wy);
-        this.matrix[3] = 0.0f;
-        this.matrix[4] = 2.0f * (xy + wz);
-        this.matrix[5] = 1.0f - 2.0f * (x2 + z2);
-        this.matrix[6] = 2.0f * (yz - wx);
-        this.matrix[7] = 0.0f;
-        this.matrix[8] = 2.0f * (xz - wy);
-        this.matrix[9] = 2.0f * (yz + wx);
-        this.matrix[10] = 1.0f - 2.0f * (x2 + y2);
-        this.matrix[11] = 0.0f;
-        this.matrix[12] = 0.0f;
-        this.matrix[13] = 0.0f;
-        this.matrix[14] = 0.0f;
-        this.matrix[15] = 1.0f;
+        matrix[0] = 1.0f - 2.0f * (y2 + z2);
+        matrix[1] = 2.0f * (xy - wz);
+        matrix[2] = 2.0f * (xz + wy);
+        matrix[3] = 0.0f;
+        matrix[4] = 2.0f * (xy + wz);
+        matrix[5] = 1.0f - 2.0f * (x2 + z2);
+        matrix[6] = 2.0f * (yz - wx);
+        matrix[7] = 0.0f;
+        matrix[8] = 2.0f * (xz - wy);
+        matrix[9] = 2.0f * (yz + wx);
+        matrix[10] = 1.0f - 2.0f * (x2 + y2);
+        matrix[11] = 0.0f;
+        matrix[12] = 0.0f;
+        matrix[13] = 0.0f;
+        matrix[14] = 0.0f;
+        matrix[15] = 1.0f;
     }
 
     public final boolean isEquals(float x, float y, float z, float w) {
@@ -223,19 +223,19 @@ public class Quaternion {
         this.z = z;
         this.w = w;
         normalise();
-        this.updateMatrix = true;
+        updateMatrix = true;
     }
 
     public final void set(Quaternion q) {
-        this.x = q.x;
-        this.y = q.y;
-        this.z = q.z;
-        this.w = q.w;
+        x = q.x;
+        y = q.y;
+        z = q.z;
+        w = q.w;
         if (!q.updateMatrix) {
-            System.arraycopy(q.matrix, 0, this.matrix, 0, q.matrix.length);
-            this.updateMatrix = false;
+            System.arraycopy(q.matrix, 0, matrix, 0, q.matrix.length);
+            updateMatrix = false;
         } else {
-            this.updateMatrix = true;
+            updateMatrix = true;
         }
     }
 
@@ -250,21 +250,21 @@ public class Quaternion {
         float angle = dot / lengths;
         if (angle >= (1 - TOLERANCE)) {
             // parallel vectors, null angle
-            this.x = 0;
-            this.y = 0;
-            this.z = 0;
-            this.w = 1;
+            x = 0;
+            y = 0;
+            z = 0;
+            w = 1;
         } else if (angle <= (TOLERANCE - 1)) {
-            this.x = 0;
-            this.y = 0; // return a 180º rotation in z axis
-            this.z = 1;
-            this.w = 0;
+            x = 0;
+            y = 0; // return a 180º rotation in z axis
+            z = 1;
+            w = 0;
         } else {
-            this.w = lengths + dot;
+            w = lengths + dot;
             auxVector.cross(v, u);
-            this.x = auxVector.x;
-            this.y = auxVector.y;
-            this.z = auxVector.z;
+            x = auxVector.x;
+            y = auxVector.y;
+            z = auxVector.z;
             normalise();
         }
         this.updateMatrix = true;
