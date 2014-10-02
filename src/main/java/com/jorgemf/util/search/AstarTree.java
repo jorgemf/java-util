@@ -12,6 +12,7 @@ public class AstarTree implements BtreeVisitor<State> {
     private static boolean PRINT_STATS = false;
     private static boolean DEBUG = false;
     private final int TIME_PRINT_STATS = 1000;
+
     private HashSet<String> visitedStates;
 
     private Btree openStateList;

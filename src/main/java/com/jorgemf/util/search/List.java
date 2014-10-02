@@ -12,8 +12,8 @@ class List extends ResourcesFactory<ListNode> {
 
     protected List(int heuristicSize) {
         this.heuristicSize = heuristicSize;
-        this.first = new ListNode[this.heuristicSize];
-        this.size = 0;
+        first = new ListNode[heuristicSize];
+        size = 0;
     }
 
     protected void clear() {
@@ -35,7 +35,7 @@ class List extends ResourcesFactory<ListNode> {
         for (int i = 0; i < size; i++) {
             first[i] = null;
         }
-        this.size = 0;
+        size = 0;
     }
 
     protected long getSize() {
@@ -50,7 +50,7 @@ class List extends ResourcesFactory<ListNode> {
         ListNode node = getResource();
         node.setState(state);
         add(node);
-        this.size++;
+        size++;
     }
 
     private void remove(ListNode node) {
@@ -79,7 +79,7 @@ class List extends ResourcesFactory<ListNode> {
             }
         }
         if (removed) {
-            this.size--;
+            size--;
             s = node.next.length;
             for (int i = 0; i < s; i++) {
                 node.next[i] = null;
@@ -123,7 +123,7 @@ class List extends ResourcesFactory<ListNode> {
     }
 
     protected ListNode[] getFirstNodes() {
-        return this.first;
+        return first;
     }
 
     private void add(ListNode node) {
@@ -207,12 +207,12 @@ class List extends ResourcesFactory<ListNode> {
                 }
             }
         }
-        this.size += list.size;
+        size += list.size;
     }
 
     @Override
     protected ListNode createResource() {
-        return new ListNode(this.heuristicSize);
+        return new ListNode(heuristicSize);
     }
 
 }

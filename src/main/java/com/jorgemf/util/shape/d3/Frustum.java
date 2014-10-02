@@ -20,11 +20,11 @@ public class Frustum {
     private int[] pvertices;
 
     public Frustum() {
-        this.frustum = new float[6][4];
-        this.center = new Vector3f();
-        this.aux = new Vector3f();
-        this.nvertices = new int[6];
-        this.pvertices = new int[6];
+        frustum = new float[6][4];
+        center = new Vector3f();
+        aux = new Vector3f();
+        nvertices = new int[6];
+        pvertices = new int[6];
     }
 
     public CONTAINS contains(Sphere sphere, Cuboid cuboid) {
@@ -56,7 +56,7 @@ public class Frustum {
     private CONTAINS contains(Vector3f center, float radius) {
         if (radius >= minimumRadius) {
             float d2 = center.distanceEuclidean2(center);
-            float r = radius + this.radius;
+            float r = radius + radius;
             if (d2 < r * r) {
                 return CONTAINS.INTERSECTION;
             } else {
@@ -83,11 +83,11 @@ public class Frustum {
         Vector3f nvertex;
         Vector3f pvertex;
         for (int p = 0; p < 6; p++) {
-            nvertex = points[this.nvertices[p]];
+            nvertex = points[nvertices[p]];
             if (frustum[p][0] * nvertex.x + frustum[p][1] * nvertex.y + frustum[p][2] * nvertex.z + frustum[p][3] <= 0) {
                 return CONTAINS.OUTSIDE;
             }
-            pvertex = points[this.pvertices[p]];
+            pvertex = points[pvertices[p]];
             if (frustum[p][0] * pvertex.x + frustum[p][1] * pvertex.y + frustum[p][2] * pvertex.z + frustum[p][3] <= 0) {
                 intersec = true;
             }
@@ -141,7 +141,7 @@ public class Frustum {
 		Vector3f nvertex;
 		Vector3f pvertex;
 		for(int p = 0; p < 6; p++){
-			nvert = this.nvertices[p];
+			nvert = nvertices[p];
 			if(mask[p][nvert] == CONTAINS.INTERSECTION){
 				nvertex = points[nvert];
 				if (frustum[p][0] * nvertex.x + frustum[p][1] * nvertex.y + frustum[p][2] * nvertex.z + frustum[p][3] > 0){
@@ -153,7 +153,7 @@ public class Frustum {
 			if(mask[p][nvert] == CONTAINS.OUTSIDE){
 				return CONTAINS.OUTSIDE;
 			}
-			pvert = this.pvertices[p];
+			pvert = pvertices[p];
 			if(mask[p][pvert] == CONTAINS.INTERSECTION){
 				pvertex = points[pvert];
 				if (frustum[p][0] * pvertex.x + frustum[p][1] * pvertex.y + frustum[p][2] * pvertex.z + frustum[p][3] > 0){
@@ -259,7 +259,7 @@ public class Frustum {
         // calculate n-vertices and p-vertices of axis aligned bounding boxes or ocnodes
         float[] f;
         float dot, aux;
-        int size = this.frustum.length;
+        int size = frustum.length;
         for (int i = 0; i < size; i++) {
             // 8 diagonals
             dot = 0;
@@ -317,16 +317,16 @@ public class Frustum {
         float h2 = h1 * (farDistance / closeDistance);
         float d = farDistance - closeDistance;
         float d1 = (h2 * h2 - h1 * h1 + d * d) / (2 * d);
-        this.distanceFromCenter = closeDistance + d1;
-        this.radius = (float) Math.sqrt(h1 * h1 + d1 * d1);
-        this.minimumRadius = d / 2;
+        distanceFromCenter = closeDistance + d1;
+        radius = (float) Math.sqrt(h1 * h1 + d1 * d1);
+        minimumRadius = d / 2;
     }
 
     public void setSphereCenter(Vector3f cameraPoint, Vector3f targetPoint) {
-        this.aux.sub(targetPoint, cameraPoint);
-        this.aux.normalize();
-        this.aux.scale(this.distanceFromCenter);
-        this.center.add(cameraPoint, aux);
+        aux.sub(targetPoint, cameraPoint);
+        aux.normalize();
+        aux.scale(distanceFromCenter);
+        center.add(cameraPoint, aux);
     }
 
     public enum CONTAINS {OUTSIDE, INSIDE, INTERSECTION}

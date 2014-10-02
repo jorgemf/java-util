@@ -1,8 +1,5 @@
 package com.jorgemf.util.tree;
 
-import com.jorgemf.util.ResourcesFactory;
-import com.jorgemf.util.search.State;
-
 public class BtreePage<k extends Comparable<k>> {
 
     private BtreePage<k> parentPage;
@@ -13,25 +10,18 @@ public class BtreePage<k extends Comparable<k>> {
 
     private int size;
 
-    private ResourcesFactory<BtreePage<k>> pagesFactory;
+    private Btree<k> btree;
 
-    private k[] auxStates;
-
-    private BtreePage[] auxPages;
-
-    protected BtreePage(int numberOfNodes, ResourcesFactory<BtreePage<k>> pagesFactory) {
-        this.size = 0;
+    protected BtreePage(int numberOfNodes, Btree<k> btree) {
+        size = 0;
         //noinspection unchecked
-        this.nodes = (k[]) (new Object[numberOfNodes]);
-        this.offspringPages = new BtreePage[numberOfNodes + 1];
-        this.pagesFactory = pagesFactory;
-        //noinspection unchecked
-        this.auxStates = (k[]) (new Object[this.nodes.length * 2 + 2]);
-        this.auxPages = new BtreePage[this.auxStates.length + 1];
+        nodes = (k[]) (new Object[numberOfNodes]);
+        offspringPages = new BtreePage[numberOfNodes + 1];
+        this.btree = btree;
     }
 
     public void visitInOrder(BtreeVisitor<k> visitor, int deep) {
-        for (int i = 0; i < this.size; i++) {
+        for (int i = 0; i < size; i++) {
             if (offspringPages[i] != null) {
                 offspringPages[i].visitInOrder(visitor, deep + 1);
             }
@@ -43,355 +33,332 @@ public class BtreePage<k extends Comparable<k>> {
     }
 
     private boolean isFull() {
-        return this.size == this.nodes.length;
+        return size == nodes.length;
     }
 
     private boolean isLeave() {
-        return this.offspringPages[0] == null;
-    }
-
-    private int searchPos(k object) {
-        int pos = 0;
-        while (pos < size && nodes[pos].compareTo(object) < 0) {
-            pos++;
-        }
-        return pos;
+        return offspringPages[0] == null;
     }
 
     public k getFirst() {
         k object;
-        if (this.isLeave()) {
-            object = this.nodes[0];
+        if (isLeave()) {
+            object = nodes[0];
         } else {
-            object = this.offspringPages[0].getFirst();
+            object = offspringPages[0].getFirst();
         }
         return object;
     }
 
     public k getLast() {
         k object;
-        if (this.isLeave()) {
-            object = this.nodes[this.size - 1];
+        if (isLeave()) {
+            object = nodes[size - 1];
         } else {
-            object = this.offspringPages[this.size].getLast();
+            object = offspringPages[size].getLast();
         }
         return object;
     }
 
-    public BtreePage getLastPage() {
-        if (this.isLeave()) {
+    public BtreePage<k> getLastPage() {
+        if (isLeave()) {
             return this;
         } else {
-            return this.offspringPages[this.size].getLastPage();
+            return offspringPages[size].getLastPage();
         }
     }
 
     public void add(k object) {
-        if (this.isLeave()) {
-            this.add(object, null);
+        if (isLeave()) {
+            add(object, null);
         } else {
-            this.offspringPages[this.searchPos(object)].add(object);
+            offspringPages[findNextPosition(object)].add(object);
         }
+    }
+
+    private int findOne(k object) {
+        int left = 0;
+        int right = size - 1;
+        int mid = (left + right) / 2;
+        int comparison = 0;
+        while ((comparison = nodes[mid].compareTo(object)) != 0 && left != right) {
+            if (comparison < 0) {
+                left = mid + 1;
+            } else { // comparison > 0
+                right = mid - 1;
+            }
+            mid = (left + right) / 2;
+        }
+        return mid;
+    }
+
+    private int findFirstPosition(k object) {
+        int pos = findOne(object);
+        while (pos > 0 && nodes[pos - 1].compareTo(object) == 0) {
+            pos--;
+        }
+        return pos;
+    }
+
+    private int findNextPosition(k object) {
+        int pos = findOne(object);
+        while (pos < size && nodes[pos].compareTo(object) == 0) {
+            pos++;
+        }
+        return pos;
     }
 
     public boolean contains(k object) {
-        int pos = 0;
-        int h = state.heuristic[heuristic];
-        int nodeh = this.nodes[pos].heuristic[heuristic];
-        boolean contains = false;
-        while (pos < this.size && nodeh <= h && !contains) {
-            if (nodeh == h) {
-                if (this.nodes[pos] == state) {
-                    contains = true;
-                } else {
-                    contains = this.offspringPages[pos].contains(state);
-                }
+        int pos = findFirstPosition(object);
+        if (nodes[pos] == object) {
+            return true;
+        }
+        while (pos < size && nodes[pos].compareTo(object) == 0) {
+            if (offspringPages[pos].contains(object)) {
+                return true;
             }
             pos++;
-            if (pos < this.size) {
-                nodeh = this.nodes[pos].heuristic[heuristic];
+            if (nodes[pos] == object) {
+                return true;
             }
         }
-        if (!contains && pos == this.size && nodeh == h) {
-            contains = this.offspringPages[pos].contains(state);
+        if (offspringPages[pos].contains(object)) {
+            return true;
         }
-        return contains;
+        return false;
     }
 
     public boolean remove(k object) {
-        int pos = 0;
-        int h = state.heuristic[heuristic];
-        int nodeh = this.nodes[pos].heuristic[heuristic];
-        boolean removed = false;
-        while (pos < this.size && nodeh <= h && !removed) {
-            if (nodeh == h) {
-                if (this.nodes[pos] == state) {
-                    removeFromThisPage(pos);
-                    removed = true;
-                } else if (this.offspringPages[pos] != null) {
-                    removed = this.offspringPages[pos].remove(state);
-                }
+        int pos = findFirstPosition(object);
+        if (nodes[pos] == object) {
+            removeFromThisPage(pos);
+            return true;
+        }
+        while (pos < size && nodes[pos].compareTo(object) == 0) {
+            if (offspringPages[pos].remove(object)) {
+                return true;
             }
             pos++;
-            if (pos < this.size) {
-                nodeh = this.nodes[pos].heuristic[heuristic];
+            if (nodes[pos] == object) {
+                removeFromThisPage(pos);
+                return true;
             }
         }
-        if (!removed && pos <= this.size && this.offspringPages[pos] != null) {
-            if ((pos == this.size && nodeh <= h) || (pos < this.size && nodeh > h)) {
-                removed = this.offspringPages[pos].remove(state);
-            }
+        if (offspringPages[pos].remove(object)) {
+            return true;
         }
-        return removed;
+        return false;
     }
 
     public void removeFromThisPage(int pos) {
-        if (this.isLeave()) {
-            this.size--;
+        if (isLeave()) {
+            size--;
             // remove the element from the page
-            for (int i = pos; i < this.size; i++) {
-                this.nodes[i] = this.nodes[i + 1];
-            }
-            this.nodes[this.size] = null; // just for avoid future problems
-            if (this.size < (this.nodes.length * 2 / 3) && this.parentPage != null) {
+            System.arraycopy(nodes, pos + 1, nodes, pos, size - pos);
+            nodes[size] = null; // just to avoid future problems
+            if (size < (nodes.length * 2 / 3) && parentPage != null) {
                 performPostRemovingOperations();
             }
         } else {
-            BtreePage lastPage = this.offspringPages[pos].getLastPage();
-            this.nodes[pos] = lastPage.nodes[lastPage.size - 1];
+            BtreePage<k> lastPage = offspringPages[pos].getLastPage();
+            nodes[pos] = lastPage.nodes[lastPage.size - 1];
             lastPage.removeFromThisPage(lastPage.size - 1);
         }
     }
 
-    private void add(k object, BtreePage page) {
-        if (this.isFull()) {
-            if (this.parentPage == null) {
-                splitRoot(state, page);
+    private void add(k object, BtreePage<k> page) {
+        if (isFull()) {
+            if (parentPage == null) {
+                splitRoot(object, page);
             } else {
-                int thisPagePos = 0;
-                while (this.parentPage.offspringPages[thisPagePos] != this) {
+                int thisPagePos = parentPage.findFirstPosition(nodes[0]) - 1;
+                if (thisPagePos < 0) {
+                    thisPagePos = 0;
+                }
+                while (parentPage.offspringPages[thisPagePos] != this) {
                     thisPagePos++;
                 }
                 BtreePage rightPage = null;
-                if (thisPagePos < this.parentPage.offspringPages.length - 1) {
-                    rightPage = this.parentPage.offspringPages[thisPagePos + 1];
+                if (thisPagePos < parentPage.offspringPages.length - 1) {
+                    rightPage = parentPage.offspringPages[thisPagePos + 1];
                 }
                 BtreePage leftPage = null;
                 if (thisPagePos > 0) {
-                    leftPage = this.parentPage.offspringPages[thisPagePos - 1];
+                    leftPage = parentPage.offspringPages[thisPagePos - 1];
                 }
                 if (rightPage != null && !rightPage.isFull()) { // rotate right
-                    rotateRigth(thisPagePos, rightPage);
-                    State nodeParent = this.parentPage.nodes[thisPagePos];
-                    if (nodeParent.heuristic[heuristic] < state.heuristic[heuristic] || (
-                            nodeParent.heuristic[heuristic] == state.heuristic[heuristic]
-                                    && page != null && page.getLast().heuristic[heuristic] > nodeParent.heuristic[heuristic])) { // add in parent
-                        //System.out.println("Rotate right add node in parent");
-                        this.nodes[this.size] = nodeParent;
-                        this.offspringPages[this.size + 1] = rightPage.offspringPages[0];
-                        if (this.offspringPages[this.size + 1] != null) {
-                            this.offspringPages[this.size + 1].parentPage = this;
+                    rotateRight(thisPagePos, rightPage);
+                    k nodeParent = parentPage.nodes[thisPagePos];
+                    if (nodeParent.compareTo(object) <= 0) { // add in parent
+                        nodes[size] = nodeParent;
+                        offspringPages[size + 1] = rightPage.offspringPages[0];
+                        if (offspringPages[size + 1] != null) {
+                            offspringPages[size + 1].parentPage = this;
                         }
                         rightPage.offspringPages[0] = page;
                         if (page != null) {
                             page.parentPage = rightPage;
                         }
-                        this.size++;
-                        this.parentPage.nodes[thisPagePos] = state;
-                    } else {
-                        this.addNodeInThisPage(state, page);
-                    }
-                } else if (leftPage != null && !leftPage.isFull()) { // rotate left
-                    rotateLeft(thisPagePos, leftPage);
-                    State nodeParent = this.parentPage.nodes[thisPagePos - 1];
-                    if (nodeParent.heuristic[heuristic] > state.heuristic[heuristic]) { // add in parent
-                        //System.out.println("Rotate left add node in parent");
-                        // shift right this page
-                        for (int i = this.size; i > 0; i--) {
-                            this.nodes[i] = this.nodes[i - 1];
-                            this.offspringPages[i + 1] = this.offspringPages[i];
-                        }
-                        this.offspringPages[1] = this.offspringPages[0];
-                        this.offspringPages[0] = page;
+                        parentPage.nodes[thisPagePos] = object;
+                    } else { // add at the end of this page
+                        nodes[size] = object;
+                        offspringPages[size + 1] = page;
                         if (page != null) {
                             page.parentPage = this;
                         }
-                        this.nodes[0] = nodeParent;
-                        this.size++;
-                        this.parentPage.nodes[thisPagePos - 1] = state;
+                    }
+                    size++;
+                } else if (leftPage != null && !leftPage.isFull()) { // rotate left
+                    rotateLeft(thisPagePos, leftPage);
+                    k nodeParent = parentPage.nodes[thisPagePos - 1];
+                    if (nodeParent.compareTo(object) > 0) { // add in parent
+                        // shift right this page
+                        System.arraycopy(nodes, 0, nodes, 1, size);
+                        System.arraycopy(offspringPages, 1, offspringPages, 2, size);
+                        offspringPages[1] = offspringPages[0];
+                        offspringPages[0] = page;
+                        if (page != null) {
+                            page.parentPage = this;
+                        }
+                        nodes[0] = nodeParent;
+                        size++;
+                        parentPage.nodes[thisPagePos - 1] = object;
                     } else {
-                        this.addNodeInThisPage(state, page);
+                        addNodeInThisPage(object, page);
                     }
                 } else if (rightPage != null) {
-                    split(this, thisPagePos, rightPage, state, page);
+                    split(this, thisPagePos, rightPage, object, page);
                 } else if (leftPage != null) {
-                    split(leftPage, thisPagePos - 1, this, state, page);
+                    split(leftPage, thisPagePos - 1, this, object, page);
                 } else {
                     throw new RuntimeException();
                 }
             }
         } else {
-            this.addNodeInThisPage(state, page);
+            addNodeInThisPage(object, page);
         }
     }
 
-    private void addNodeInThisPage(k object, BtreePage rightPage) {
-        int pos = -1;
-        if (rightPage == null) {
-            pos = searchPos(object);
-        } else {
-            pos = 0;
-            int h = state.heuristic[heuristic];
-            int nodeH;
-            while (pos < size) {
-                nodeH = nodes[pos].heuristic[heuristic];
-                if (nodeH < h || (nodeH == h && offspringPages[pos + 1].getLast().heuristic[heuristic] == h)) {
-                    pos++;
-                } else {
-                    break;
-                }
-            }
-        }
+    private void addNodeInThisPage(k object, BtreePage<k> rightPage) {
+        int pos = findNextPosition(object);
         // move elements
-        for (int i = size; i > pos; i--) {
-            this.nodes[i] = this.nodes[i - 1];
-            this.offspringPages[i + 1] = this.offspringPages[i];
-        }
-        this.nodes[pos] = object;
-        this.offspringPages[pos + 1] = rightPage;
-        this.size++;
+        System.arraycopy(nodes, pos, nodes, pos + 1, size - pos);
+        System.arraycopy(offspringPages, pos + 1, offspringPages, pos + 1 + 1, size - pos);
+        nodes[pos] = object;
+        offspringPages[pos + 1] = rightPage;
+        size++;
         if (rightPage != null) {
             rightPage.parentPage = this;
         }
     }
 
-    private void rotateRigth(int thisPagePos, BtreePage rightPage) {
-        BtreePage parent = this.parentPage;
+    private void rotateRight(int thisPagePos, BtreePage<k> rightPage) {
+        BtreePage<k> parent = parentPage;
         // shift right page to the right
         rightPage.offspringPages[rightPage.size + 1] = rightPage.offspringPages[rightPage.size];
-        for (int i = rightPage.size; i > 0; i--) {
-            rightPage.offspringPages[i] = rightPage.offspringPages[i - 1];
-            rightPage.nodes[i] = rightPage.nodes[i - 1];
-        }
+        System.arraycopy(rightPage.offspringPages, 0, rightPage.offspringPages, 1, rightPage.size);
+        System.arraycopy(rightPage.nodes, 0, rightPage.nodes, 1, rightPage.size);
         // add the node from the parent
         rightPage.size++;
         rightPage.nodes[0] = parent.nodes[thisPagePos];
         // add the reference from this page
-        rightPage.offspringPages[0] = this.offspringPages[this.size];
-        if (this.offspringPages[this.size] != null) {
+        rightPage.offspringPages[0] = offspringPages[size];
+        if (offspringPages[size] != null) {
             rightPage.offspringPages[0].parentPage = rightPage;
         }
         // add last node of this page to the parent
-        parent.nodes[thisPagePos] = this.nodes[size - 1];
+        parent.nodes[thisPagePos] = nodes[size - 1];
         // remove the last node and the right reference
-        this.nodes[size - 1] = null;
-        this.offspringPages[size] = null;
-        this.size--;
+        nodes[size - 1] = null;
+        offspringPages[size] = null;
+        size--;
     }
 
-    private void rotateLeft(int thisPagePos, BtreePage leftPage) {
-        BtreePage parent = this.parentPage;
+    private void rotateLeft(int thisPagePos, BtreePage<k> leftPage) {
+        BtreePage<k> parent = parentPage;
         // add the node from the parent
         leftPage.nodes[leftPage.size] = parent.nodes[thisPagePos - 1];
         // add the reference from this page
-        leftPage.offspringPages[leftPage.size + 1] = this.offspringPages[0];
-        if (this.offspringPages[0] != null) {
+        leftPage.offspringPages[leftPage.size + 1] = offspringPages[0];
+        if (offspringPages[0] != null) {
             leftPage.offspringPages[leftPage.size + 1].parentPage = leftPage;
         }
         leftPage.size++;
         // add first node of this page to the parent
-        parent.nodes[thisPagePos - 1] = this.nodes[0];
+        parent.nodes[thisPagePos - 1] = nodes[0];
         // shift this page to the left and remove first item
-        for (int i = 0; i < this.size - 1; i++) {
-            this.nodes[i] = this.nodes[i + 1];
-            this.offspringPages[i] = this.offspringPages[i + 1];
-        }
-        this.offspringPages[this.size - 1] = this.offspringPages[this.size];
-        this.nodes[this.size - 1] = null;
-        this.offspringPages[this.size] = null;
-        this.size--;
+        System.arraycopy(nodes, 1, nodes, 0, size - 1);
+        System.arraycopy(offspringPages, 1, offspringPages, 0, size - 1);
+        offspringPages[size - 1] = offspringPages[size];
+        nodes[size - 1] = null;
+        offspringPages[size] = null;
+        size--;
     }
 
-    private void splitRoot(State state, BtreePage page) {
-        if (this.parentPage != null && this.size != this.nodes.length) {
+    private void splitRoot(k object, BtreePage<k> page) {
+        if (parentPage != null && size != nodes.length) {
             throw new RuntimeException();
         }
-        int nodesFirstPage = (this.nodes.length + 1) / 2;
-        int nodesSecondPage = this.nodes.length / 2;
-        BtreePage left = this.pagesFactory.getResource();
-        BtreePage right = this.pagesFactory.getResource();
-        boolean added = false;
-        int stateHeuristic = state.heuristic[heuristic];
-        int index = 0;
-        // left page
+        int nodesFirstPage = (nodes.length + 1) / 2;
+        int nodesSecondPage = nodes.length / 2;
+        BtreePage<k> left = btree.getResource();
+        BtreePage<k> right = btree.getResource();
         left.size = nodesFirstPage;
-        left.offspringPages[0] = this.offspringPages[0];
-        for (int i = 0; i < nodesFirstPage; i++) {
-            if (!added && (stateHeuristic < this.nodes[index].heuristic[heuristic] || (
-                    stateHeuristic == this.nodes[index].heuristic[heuristic] && page != null &&
-                            stateHeuristic < this.offspringPages[index + 1].getLast().heuristic[heuristic]))) {
-                left.nodes[i] = state;
-                left.offspringPages[i + 1] = page;
-                added = true;
-            } else {
-                left.nodes[i] = this.nodes[index];
-                left.offspringPages[i + 1] = this.offspringPages[index + 1];
-                index++;
-            }
-        }
-        // root
-        State nodeRoot;
-        if (!added && (stateHeuristic < this.nodes[index].heuristic[heuristic] || (
-                stateHeuristic == this.nodes[index].heuristic[heuristic] && page != null &&
-                        stateHeuristic < this.offspringPages[index + 1].getLast().heuristic[heuristic]))) {
-            nodeRoot = state;
-            right.offspringPages[0] = page;
-            added = true;
-        } else {
-            nodeRoot = this.nodes[index];
-            index++;
-            right.offspringPages[0] = this.offspringPages[index];
-        }
-        // right page
         right.size = nodesSecondPage;
-        for (int i = 0; i < nodesSecondPage; i++) {
-            if (!added && (i == nodesSecondPage - 1 || stateHeuristic < this.nodes[index].heuristic[heuristic] || (
-                    stateHeuristic == this.nodes[index].heuristic[heuristic] && page != null &&
-                            stateHeuristic < this.offspringPages[index + 1].getLast().heuristic[heuristic]))) {
-                right.nodes[i] = state;
-                right.offspringPages[i + 1] = page;
-                added = true;
-            } else {
-                right.nodes[i] = this.nodes[index];
-                right.offspringPages[i + 1] = this.offspringPages[index + 1];
-                index++;
-            }
-        }
-        // root
-        this.offspringPages[0] = left;
-        this.offspringPages[1] = right;
-        left.parentPage = this;
-        right.parentPage = this;
-        this.nodes[0] = nodeRoot;
-        for (int i = 1; i < this.size; i++) {
-            this.nodes[i] = null;
-            this.offspringPages[i + 1] = null;
-        }
-        this.size = 1;
-        // parent pages
+        int newObjectPosition = findNextPosition(object);
+        // copy to aux structure
+        k[] auxNodes = btree.auxNodes;
+        BtreePage<k>[] auxPages = btree.auxPages;
+        System.arraycopy(nodes, 0, auxNodes, 0, newObjectPosition);
+        auxNodes[newObjectPosition] = object;
+        System.arraycopy(nodes, newObjectPosition, auxNodes, newObjectPosition + 1, size - newObjectPosition);
+        // split aux structure
+        System.arraycopy(auxNodes, 0, left.nodes, 0, nodesFirstPage);
+        System.arraycopy(auxNodes, nodesFirstPage + 1, right.nodes, 0, nodesSecondPage);
         if (page != null) {
-            for (int i = 0; i <= left.size; i++) {
+            // copy to aux structure
+            System.arraycopy(offspringPages, 0, auxPages, 0, newObjectPosition + 1);
+            auxPages[newObjectPosition + 1] = page;
+            System.arraycopy(offspringPages, newObjectPosition + 1, auxPages, newObjectPosition + 2, size - newObjectPosition);
+            // split aux structure
+            System.arraycopy(auxPages, 0, left.offspringPages, 0, nodesFirstPage + 1);
+            System.arraycopy(auxPages, nodesFirstPage + 1, right.offspringPages, 0, nodesSecondPage);
+            for (int i = 0; i < left.size + 1; i++) {
                 left.offspringPages[i].parentPage = left;
             }
-            for (int i = 0; i <= right.size; i++) {
+            for (int i = 0; i < right.size + 1; i++) {
                 right.offspringPages[i].parentPage = right;
             }
         }
+        // root
+        for (int i = 1; i < size; i++) {
+            nodes[i] = null;
+            offspringPages[i + 1] = null;
+        }
+        nodes[0] = auxNodes[nodesFirstPage];
+        offspringPages[0] = left;
+        offspringPages[1] = right;
+        left.parentPage = this;
+        right.parentPage = this;
     }
 
-    private void split(BtreePage leftPage, int thisPagePos, BtreePage rightPage, State state, BtreePage page) {
-        int nodesPerPage = this.nodes.length * 2 / 3;
-        int difference = this.nodes.length * 2 - nodesPerPage * 3;
+    private void split(BtreePage<k> leftPage, int thisPagePos, BtreePage<k> rightPage, k object, BtreePage<k> page) {
+        int totalSize = leftPage.size + rightPage.size + 2;
+        int nodesFirstPage = (totalSize - 2) / 3;
+        int nodesSecondPage = nodesFirstPage;
+        int nodesThirdPage = (totalSize - 2) - nodesFirstPage * 2;
+        BtreePage lastPage = btree.getResource();
+        k[] auxNodes = btree.auxNodes;
+        BtreePage<k>[] auxPages = btree.auxPages;
+        // left
+        System.arraycopy(leftPage.nodes, 0, auxNodes, 0, leftPage.size);
+        auxNodes[leftPage.size] = parentNode
+
+        System.arraycopy(rightPage.nodes, 0, auxNodes, leftPage.size, rightPage.size);
+
+
+        int nodesPerPage = nodes.length * 2 / 3;
+        int difference = nodes.length * 2 - nodesPerPage * 3;
         int nodesFirstPage = nodesPerPage;
         int nodesSecondPage = nodesPerPage;
         if (difference == 1) {
@@ -402,43 +369,44 @@ public class BtreePage<k extends Comparable<k>> {
         } else if (difference != 0) {
             throw new RuntimeException();
         }
-        BtreePage lastPage = this.pagesFactory.getResource();
-        for (int i = 0; i < auxStates.length; i++) {
-            auxStates[i] = null;
+        int nodesLastPage = leftPage.size + rightPage.size + size - nodesFirstPage - nodesSecondPage - 2;
+
+        for (int i = 0; i < auxNodes.length; i++) {
+            auxNodes[i] = null;
             auxPages[i] = null;
         }
-        auxPages[auxStates.length] = null;
+        auxPages[auxNodes.length] = null;
         int i = 0;
         boolean added = false;
         int j = 0;
         // merge all
         // left page
         auxPages[i] = leftPage.offspringPages[j];
-        int stateHeuristic = state.heuristic[heuristic];
+        int stateHeuristic = object.heuristic[heuristic];
         while (j < leftPage.size) {
             if (!added && (stateHeuristic < leftPage.nodes[j].heuristic[heuristic] || (
                     stateHeuristic == leftPage.nodes[j].heuristic[heuristic] && page != null &&
                             stateHeuristic < leftPage.offspringPages[j + 1].getLast().heuristic[heuristic]))) {
-                auxStates[i] = state;
+                auxNodes[i] = object;
                 auxPages[i + 1] = page;
                 added = true;
             } else {
-                auxStates[i] = leftPage.nodes[j];
+                auxNodes[i] = leftPage.nodes[j];
                 auxPages[i + 1] = leftPage.offspringPages[j + 1];
                 j++;
             }
             i++;
         }
         // parent node
-        if (!added && (stateHeuristic < this.parentPage.nodes[thisPagePos].heuristic[heuristic] || (
-                stateHeuristic == this.parentPage.nodes[thisPagePos].heuristic[heuristic] && page != null &&
+        if (!added && (stateHeuristic < parentPage.nodes[thisPagePos].heuristic[heuristic] || (
+                stateHeuristic == parentPage.nodes[thisPagePos].heuristic[heuristic] && page != null &&
                         stateHeuristic < rightPage.offspringPages[0].getLast().heuristic[heuristic]))) {
-            auxStates[i] = state;
+            auxNodes[i] = object;
             auxPages[i + 1] = page;
             added = true;
             i++;
         }
-        auxStates[i] = this.parentPage.nodes[thisPagePos];
+        auxNodes[i] = parentPage.nodes[thisPagePos];
         //right page
         i++;
         j = 0;
@@ -447,25 +415,25 @@ public class BtreePage<k extends Comparable<k>> {
             if (!added && (stateHeuristic < rightPage.nodes[j].heuristic[heuristic] || (
                     stateHeuristic == rightPage.nodes[j].heuristic[heuristic] && page != null &&
                             stateHeuristic < rightPage.offspringPages[j + 1].getLast().heuristic[heuristic]))) {
-                auxStates[i] = state;
+                auxNodes[i] = object;
                 auxPages[i + 1] = page;
                 added = true;
             } else {
-                auxStates[i] = rightPage.nodes[j];
+                auxNodes[i] = rightPage.nodes[j];
                 auxPages[i + 1] = rightPage.offspringPages[j + 1];
                 j++;
             }
             i++;
         }
         if (!added) {
-            auxStates[i] = state;
+            auxNodes[i] = object;
             auxPages[i + 1] = page;
         }
 
         // split merged nodes
         for (i = 0; i < nodesFirstPage; i++) {
             leftPage.offspringPages[i] = auxPages[i];
-            leftPage.nodes[i] = auxStates[i];
+            leftPage.nodes[i] = auxNodes[i];
         }
         leftPage.offspringPages[i] = auxPages[i];
         if (auxPages[0] != null) {
@@ -478,11 +446,11 @@ public class BtreePage<k extends Comparable<k>> {
             leftPage.offspringPages[k + 1] = null;
         }
         leftPage.size = nodesFirstPage;
-        this.parentPage.nodes[thisPagePos] = auxStates[i];
+        parentPage.nodes[thisPagePos] = auxNodes[i];
         j = i + 1;
         for (i = 0; i < nodesSecondPage; i++) {
             rightPage.offspringPages[i] = auxPages[j];
-            rightPage.nodes[i] = auxStates[j];
+            rightPage.nodes[i] = auxNodes[j];
             j++;
         }
         rightPage.offspringPages[i] = auxPages[j];
@@ -496,10 +464,10 @@ public class BtreePage<k extends Comparable<k>> {
             rightPage.offspringPages[k + 1] = null;
         }
         rightPage.size = nodesSecondPage;
-        State newStateToAddInParent = auxStates[j];
+        k newNodeToAddInParent = auxNodes[j];
         j++;
         for (i = 0; i < nodesPerPage; i++) {
-            lastPage.nodes[i] = auxStates[j];
+            lastPage.nodes[i] = auxNodes[j];
             lastPage.offspringPages[i] = auxPages[j];
             j++;
         }
@@ -510,13 +478,13 @@ public class BtreePage<k extends Comparable<k>> {
             }
         }
         lastPage.size = nodesPerPage;
-        this.parentPage.add(newStateToAddInParent, lastPage);
+        parentPage.add(newNodeToAddInParent, lastPage);    // bear in mind the position
     }
 
     private void performPostRemovingOperations() {
         BtreePage left, middle, right;
         int thisPagePos = 0;
-        BtreePage parent = this.parentPage;
+        BtreePage parent = parentPage;
         while (parent.offspringPages[thisPagePos] != this) {
             thisPagePos++;
         }
@@ -543,7 +511,7 @@ public class BtreePage<k extends Comparable<k>> {
                 right = middle;
             }
             int totalSize = left.size + right.size + 1;
-            if (totalSize > this.nodes.length) {
+            if (totalSize > nodes.length) {
                 balancePages(left, right);
             } else {
                 mergeToRoot(left, right);
@@ -558,18 +526,18 @@ public class BtreePage<k extends Comparable<k>> {
             if (parentPos == 0) {
                 root.offspringPages[parentPos + 1].rotateLeft(parentPos + 1, parent);
             } else if (parentPos == root.size) {
-                root.offspringPages[parentPos - 1].rotateRigth(parentPos - 1, parent);
+                root.offspringPages[parentPos - 1].rotateRight(parentPos - 1, parent);
             } else {
                 if (root.offspringPages[parentPos - 1].size < root.offspringPages[parentPos + 1].size) {
                     root.offspringPages[parentPos + 1].rotateLeft(parentPos + 1, parent);
                 } else {
-                    root.offspringPages[parentPos - 1].rotateRigth(parentPos - 1, parent);
+                    root.offspringPages[parentPos - 1].rotateRight(parentPos - 1, parent);
                 }
             }
-            this.performPostRemovingOperations();
+            performPostRemovingOperations();
         } else {
             int totalSize = left.size + middle.size + right.size + 1;
-            if (totalSize > this.nodes.length * 2) {
+            if (totalSize > nodes.length * 2) {
                 balancePages(left, middle, right, middlePagePos);
             } else {
                 mergePages(left, middle, right, middlePagePos);
@@ -577,9 +545,9 @@ public class BtreePage<k extends Comparable<k>> {
         }
     }
 
-    private void balancePages(BtreePage left, BtreePage right) {
+    private void balancePages(BtreePage<k> left, BtreePage<k> right) {
         int difference = left.size - right.size;
-        BtreePage parent = this.parentPage;
+        BtreePage<k> parent = parentPage;
         int parentLeftPagePos = 0;
         while (parent.offspringPages[parentLeftPagePos] != left) {
             parentLeftPagePos++;
@@ -652,8 +620,8 @@ public class BtreePage<k extends Comparable<k>> {
         }
     }
 
-    private void mergeToRoot(BtreePage left, BtreePage right) {
-        BtreePage root = this.parentPage;
+    private void mergeToRoot(BtreePage<k> left, BtreePage<k> right) {
+        BtreePage<k> root = parentPage;
         if (root.size != 1) {
             throw new RuntimeException("Fatal error!");
         }
@@ -681,8 +649,8 @@ public class BtreePage<k extends Comparable<k>> {
         }
     }
 
-    private void balancePages(BtreePage left, BtreePage middle, BtreePage right, int middlePagePos) {
-        int minimumSize = this.nodes.length * 2 / 3;
+    private void balancePages(BtreePage<k> left, BtreePage<k> middle, BtreePage<k> right, int middlePagePos) {
+        int minimumSize = nodes.length * 2 / 3;
         boolean change;
         do {
             change = false;
@@ -690,11 +658,11 @@ public class BtreePage<k extends Comparable<k>> {
                 middle.rotateLeft(middlePagePos, left);
                 change = true;
             } else if (right.size < minimumSize) {
-                middle.rotateRigth(middlePagePos, right);
+                middle.rotateRight(middlePagePos, right);
                 change = true;
             } else if (middle.size < minimumSize) {
                 if (left.size > right.size) {
-                    left.rotateRigth(middlePagePos - 1, middle);
+                    left.rotateRight(middlePagePos - 1, middle);
                 } else {
                     right.rotateLeft(middlePagePos + 1, middle);
                 }
@@ -703,53 +671,55 @@ public class BtreePage<k extends Comparable<k>> {
         } while (change);
     }
 
-    private void mergePages(BtreePage left, BtreePage middle, BtreePage right, int middlePagePos) {
-        BtreePage parent = this.parentPage;
+    private void mergePages(BtreePage<k> left, BtreePage<k> middle, BtreePage<k> right, int middlePagePos) {
+        BtreePage<k> parent = parentPage;
         int sumSizes = left.size + middle.size + right.size + 1;
-        if (sumSizes > this.nodes.length * 2) {
+        if (sumSizes > nodes.length * 2) {
             throw new RuntimeException();
         }
         int rightFinalSize = sumSizes / 2;
         int leftFinalSize = sumSizes - rightFinalSize;
+        k[] auxNodes = btree.auxNodes;
+        BtreePage<k>[] auxPages = btree.auxPages;
         for (int i = 0; i < sumSizes + 1; i++) {
-            auxStates[i] = null;
+            auxNodes[i] = null;
             auxPages[i] = null;
         }
         auxPages[sumSizes + 2] = null;
         int j = 0;
         // merge
         for (int i = 0; i < left.size; i++) {
-            auxStates[i] = left.nodes[i];
+            auxNodes[i] = left.nodes[i];
             auxPages[i] = left.offspringPages[i];
         }
         j = left.size;
         auxPages[j] = left.offspringPages[j];
-        auxStates[j] = parent.nodes[middlePagePos - 1];
+        auxNodes[j] = parent.nodes[middlePagePos - 1];
         j++;
         for (int i = 0; i < middle.size; i++) {
-            auxStates[j] = middle.nodes[i];
+            auxNodes[j] = middle.nodes[i];
             auxPages[j] = middle.offspringPages[i];
             j++;
         }
         auxPages[j] = middle.offspringPages[middle.size];
-        auxStates[j] = parent.nodes[middlePagePos];
+        auxNodes[j] = parent.nodes[middlePagePos];
         j++;
         for (int i = 0; i < right.size; i++) {
-            auxStates[j] = right.nodes[i];
+            auxNodes[j] = right.nodes[i];
             auxPages[j] = right.offspringPages[i];
             j++;
         }
         auxPages[j] = right.offspringPages[right.size];
         // split
         for (int i = 0; i < leftFinalSize; i++) {
-            left.nodes[i] = auxStates[i];
+            left.nodes[i] = auxNodes[i];
             left.offspringPages[i] = auxPages[i];
         }
         j = leftFinalSize;
         left.offspringPages[j] = auxPages[j];
         left.size = leftFinalSize;
         // remove empty pos from parent
-        parent.nodes[middlePagePos - 1] = auxStates[j];
+        parent.nodes[middlePagePos - 1] = auxNodes[j];
         j++;
         for (int i = middlePagePos; i < parent.size - 1; i++) {
             parent.nodes[i] = parent.nodes[i + 1];
@@ -760,7 +730,7 @@ public class BtreePage<k extends Comparable<k>> {
         parent.offspringPages[parent.size] = null;
         parent.size--;
         for (int i = 0; i < rightFinalSize; i++) {
-            right.nodes[i] = auxStates[j];
+            right.nodes[i] = auxNodes[j];
             right.offspringPages[i] = auxPages[j];
             j++;
         }
@@ -777,7 +747,7 @@ public class BtreePage<k extends Comparable<k>> {
         }
         clear(middle);
         // perform more post removing operations in parent if needed
-        if (parent.size < (this.nodes.length * 2 / 3) && parent.parentPage != null) {
+        if (parent.size < (nodes.length * 2 / 3) && parent.parentPage != null) {
             parent.performPostRemovingOperations();
         }
     }
@@ -786,21 +756,21 @@ public class BtreePage<k extends Comparable<k>> {
     public String toString() {
         BtreePrinter v = new BtreePrinter();
         v.toString(true);
-        this.visit(v, 0);
+        visit(v, 0);
         return v.getString();
     }
 
     protected void checkIntegrity() {
-        if (this.offspringPages[0] != null) {
-            for (int i = 0; i <= this.size; i++) {
-                if (this.offspringPages[i].parentPage != this) {
+        if (offspringPages[0] != null) {
+            for (int i = 0; i <= size; i++) {
+                if (offspringPages[i].parentPage != this) {
                     throw new RuntimeException();
                 } else {
-                    this.offspringPages[i].checkIntegrity();
+                    offspringPages[i].checkIntegrity();
                 }
             }
-            for (int i = 0; i < this.size; i++) {
-                if (this.nodes[i] == null) {
+            for (int i = 0; i < size; i++) {
+                if (nodes[i] == null) {
                     throw new RuntimeException();
                 }
             }
@@ -814,19 +784,19 @@ public class BtreePage<k extends Comparable<k>> {
         }
         page.offspringPages[page.nodes.length] = null;
         page.size = 0;
-        this.pagesFactory.releaseResource(page);
+        btree.releaseResource(page);
     }
 
     public void clear() {
-        for (int i = 0; i < this.size; i++) {
-            this.nodes[i] = null;
+        for (int i = 0; i < size; i++) {
+            nodes[i] = null;
         }
-        for (int i = 0; i <= this.size; i++) {
-            if (this.offspringPages[i] != null) {
-                this.offspringPages[i].clear();
-                this.pagesFactory.releaseResource(this.offspringPages[i]);
+        for (int i = 0; i <= size; i++) {
+            if (offspringPages[i] != null) {
+                offspringPages[i].clear();
+                btree.releaseResource(offspringPages[i]);
             }
-            this.offspringPages[i] = null;
+            offspringPages[i] = null;
         }
     }
 

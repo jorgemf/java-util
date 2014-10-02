@@ -83,8 +83,8 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
     }
 
     public synchronized void remove(k intersectable) {
-        this.elementsList.remove(intersectable);
-        OctreeNode<k> node = this.elements.remove(intersectable);
+        elementsList.remove(intersectable);
+        OctreeNode<k> node = elements.remove(intersectable);
         if (node != null) {
             node.getObjects().remove(intersectable);
             clean(node);
@@ -175,10 +175,10 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
     }
 
     public void clear() {
-        this.elementsList.clear();
-        if (this.root != null) {
-            clear(this.root);
-            this.root = null;
+        elementsList.clear();
+        if (root != null) {
+            clear(root);
+            root = null;
         }
     }
 

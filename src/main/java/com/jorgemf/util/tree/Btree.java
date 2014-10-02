@@ -5,6 +5,8 @@ import com.jorgemf.util.ResourcesFactory;
 public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k>> {
 
     private static final int NODES_PER_PAGE = 6;
+    protected k[] auxNodes;
+    protected BtreePage<k>[] auxPages;
     private long size;
     private BtreePage<k> root;
     private int nodesPerPage;
@@ -20,6 +22,9 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
         this.nodesPerPage = nodesPerPage;
         this.root = getResource();
         this.size = 0;
+        //noinspection unchecked
+        auxNodes = (k[]) (new Object[nodesPerPage * 2 + 2]);
+        auxPages = new BtreePage[auxNodes.length + 1];
     }
 
     public void add(k object) {
@@ -63,5 +68,6 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
     public void clear() {
         root.clear();
     }
+
 
 }

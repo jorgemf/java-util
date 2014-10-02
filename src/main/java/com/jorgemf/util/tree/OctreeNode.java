@@ -126,8 +126,10 @@ public class OctreeNode<k extends Intersectable> extends AxisAlignedBoundingCubo
     }
 
     public void frustumCulling(Frustum frustum, List<k> elements) {
-        Frustum.CONTAINS contains = frustum.contains(this);
-        int size;
+        Frustum.CONTAINS contains = frustum.contains((Sphere) this);
+        if (contains == Frustum.CONTAINS.INTERSECTION) {
+            contains = frustum.contains((AxisAlignedBoundingCuboid) this);
+        }
         switch (contains) {
             case INTERSECTION:
                 for (k intersectable : objects) {
@@ -148,6 +150,7 @@ public class OctreeNode<k extends Intersectable> extends AxisAlignedBoundingCubo
                 cullingAddRecursive(elements);
                 break;
             case OUTSIDE:
+                // nothing
         }
     }
 
@@ -164,7 +167,7 @@ public class OctreeNode<k extends Intersectable> extends AxisAlignedBoundingCubo
 
     public String toString() {
         String s = "[" + getMinPoint() + ";" + getMaxPoint() + "]: ";
-        for (Intersectable intersectable : this.objects) {
+        for (Intersectable intersectable : objects) {
             s += intersectable + ", ";
         }
         return s;

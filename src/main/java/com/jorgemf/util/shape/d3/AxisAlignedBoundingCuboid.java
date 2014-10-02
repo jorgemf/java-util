@@ -124,7 +124,7 @@ public class AxisAlignedBoundingCuboid {
     }
 
     public Vector3f getPosition() {
-        return this.position;
+        return position;
     }
 
     public void move(Vector3f movement) {
@@ -145,15 +145,15 @@ public class AxisAlignedBoundingCuboid {
     }
 
     public Vector3f getDimensions() {
-        return this.dimensions;
+        return dimensions;
     }
 
     public Vector3f getMinPoint() {
-        return this.minPoint;
+        return minPoint;
     }
 
     public Vector3f getMaxPoint() {
-        return this.maxPoint;
+        return maxPoint;
     }
 
 }

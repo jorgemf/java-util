@@ -11,17 +11,17 @@ class ListNode {
     protected ListNode[] previous;
 
     protected ListNode(int heuristicLength) {
-        this.values = new int[heuristicLength];
-        this.next = new ListNode[this.values.length];
-        this.previous = new ListNode[this.values.length];
+        values = new int[heuristicLength];
+        next = new ListNode[values.length];
+        previous = new ListNode[values.length];
     }
 
     protected State getState() {
-        return this.state;
+        return state;
     }
 
     protected void setState(State state) {
-        this.state = state;
+        state = state;
         int[] heuristic = state.heuristic;
         int cost = state.cost;
         int size = values.length;
