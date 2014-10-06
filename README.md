@@ -26,7 +26,13 @@ other ideas for the future:
 - statistical package (something similar to R)
 - graph visualization (at least integration with gnuplot or something similar)
 - clients-service architecture (with master)
-- map reduce with network communication (using previous architecture), flume or cloud data flow for small clusters
+- map reduce with network communication (using previous architecture), flume or cloud data flow for small clusters  
+
+for developers:
+---------
+
+- IDE intellj idea ultimate
+- using Junit 4.0 for testing
 
 
 

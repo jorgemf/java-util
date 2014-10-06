@@ -1,6 +1,6 @@
 package com.jorgemf.util.search;
 
-public abstract class State {
+public abstract class State implements Comparable<State> {
 
     protected int[] heuristic;
 

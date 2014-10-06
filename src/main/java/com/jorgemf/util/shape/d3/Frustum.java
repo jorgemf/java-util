@@ -1,6 +1,7 @@
 package com.jorgemf.util.shape.d3;
 
 import com.jorgemf.util.math.Vector3f;
+import com.jorgemf.util.tree.OctreeNode;
 
 public class Frustum {
 
@@ -11,7 +12,6 @@ public class Frustum {
     public static final int FAR_PLANE = 4;
     public static final int NEAR_PLANE = 5;
     private float[][] frustum;
-    private float radius;
     private float minimumRadius;
     private float distanceFromCenter;
     private Vector3f center;
@@ -47,10 +47,8 @@ public class Frustum {
         return contains(intersectable.getAxisAlignedBoundingCuboid());
     }
 
-    public CONTAINS contains(AxisAlignedBoundingCuboid cuboid) {
-//        return contains(cuboid.getMinPoint(), cuboid.getMaxPoint());
-        throw new UnsupportedOperationException("operation to be done");
-        // TODO
+    public CONTAINS contains(AxisAlignedBoundingCuboid box) {
+        return containsAxisAligned(box.getMinPoint(), box.getMaxPoint());
     }
 
     private CONTAINS contains(Vector3f center, float radius) {
@@ -78,17 +76,29 @@ public class Frustum {
 
     // culling using mask for previous calculated points and the diagonal more parallel to the normal of the plane in order to only use two points (n- and p-vertices)
     // see Optimized view frustum culling algorithms for bounding boxes, 199, ulf assarsson and tomas moller
-    private CONTAINS containsCuboid(Vector3f[] points) {
+    private CONTAINS containsAxisAligned(Vector3f minPoint, Vector3f maxPoint) {
         boolean intersec = false;
-        Vector3f nvertex;
-        Vector3f pvertex;
+        float nvertexX;
+        float nvertexY;
+        float nvertexZ;
+        float pvertexX;
+        float pvertexY;
+        float pvertexZ;
+        int nvertice;
+        int pvertice;
         for (int p = 0; p < 6; p++) {
-            nvertex = points[nvertices[p]];
-            if (frustum[p][0] * nvertex.x + frustum[p][1] * nvertex.y + frustum[p][2] * nvertex.z + frustum[p][3] <= 0) {
+            nvertice = nvertices[p];
+            nvertexX = (nvertice & OctreeNode.X_BIT) > 0 ? maxPoint.x : minPoint.x;
+            nvertexY = (nvertice & OctreeNode.Y_BIT) > 0 ? maxPoint.y : minPoint.y;
+            nvertexZ = (nvertice & OctreeNode.Z_BIT) > 0 ? maxPoint.z : minPoint.z;
+            if (frustum[p][0] * nvertexX + frustum[p][1] * nvertexY + frustum[p][2] * nvertexZ + frustum[p][3] <= 0) {
                 return CONTAINS.OUTSIDE;
             }
-            pvertex = points[pvertices[p]];
-            if (frustum[p][0] * pvertex.x + frustum[p][1] * pvertex.y + frustum[p][2] * pvertex.z + frustum[p][3] <= 0) {
+            pvertice = pvertices[p];
+            pvertexX = (pvertice & OctreeNode.X_BIT) > 0 ? maxPoint.x : minPoint.x;
+            pvertexY = (pvertice & OctreeNode.Y_BIT) > 0 ? maxPoint.y : minPoint.y;
+            pvertexZ = (pvertice & OctreeNode.Z_BIT) > 0 ? maxPoint.z : minPoint.z;
+            if (frustum[p][0] * pvertexX + frustum[p][1] * pvertexY + frustum[p][2] * pvertexZ + frustum[p][3] <= 0) {
                 intersec = true;
             }
         }
@@ -99,32 +109,30 @@ public class Frustum {
         }
     }
 
-	/*
-    private CONTAINS frustumPlanesContainsCuboid(Vector3f[] points){
-		int pointsInside = 0;
-		int planes;
-		for(int i = 0; i < 8; i++){
-			planes = 0;
-			for (int p = 0; p < 6; p++){
-				if (frustum[p][0] * points[i].x + frustum[p][1] * points[i].y + frustum[p][2] * points[i].z + frustum[p][3] > 0){
-					planes++;
-				}else{
-					break;
-				}
-			}
-			if(planes == 6){
-				pointsInside++;
-			}
-		}
-		if(pointsInside == 0){
-			return CONTAINS.OUTSIDE;
-		}else if(pointsInside == 8){
-			return CONTAINS.INSIDE;
-		}else{
-			return CONTAINS.INTERSECTION;
-		}
-	}
-	*/
+    private CONTAINS containsCuboid(Vector3f[] points) {
+        int pointsInside = 0;
+        int planes;
+        for (int i = 0; i < 8; i++) {
+            planes = 0;
+            for (int p = 0; p < 6; p++) {
+                if (frustum[p][0] * points[i].x + frustum[p][1] * points[i].y + frustum[p][2] * points[i].z + frustum[p][3] > 0) {
+                    planes++;
+                } else {
+                    break;
+                }
+            }
+            if (planes == 6) {
+                pointsInside++;
+            }
+        }
+        if (pointsInside == 0) {
+            return CONTAINS.OUTSIDE;
+        } else if (pointsInside == 8) {
+            return CONTAINS.INSIDE;
+        } else {
+            return CONTAINS.INTERSECTION;
+        }
+    }
 
     public float distanceToPlane(Vector3f point, int plane) {
         return (float) Math.sqrt((frustum[plane][0] * point.x + frustum[plane][1] * point.y + frustum[plane][2] * point.z + frustum[plane][3])
@@ -262,6 +270,7 @@ public class Frustum {
         int size = frustum.length;
         for (int i = 0; i < size; i++) {
             // 8 diagonals
+            // TODO bear in mind the nodes direction
             dot = 0;
             f = frustum[i];
             // +++
@@ -318,7 +327,7 @@ public class Frustum {
         float d = farDistance - closeDistance;
         float d1 = (h2 * h2 - h1 * h1 + d * d) / (2 * d);
         distanceFromCenter = closeDistance + d1;
-        radius = (float) Math.sqrt(h1 * h1 + d1 * d1);
+//        radius = (float) Math.sqrt(h1 * h1 + d1 * d1);
         minimumRadius = d / 2;
     }
 

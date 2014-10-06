@@ -9,13 +9,12 @@ import java.util.Vector;
 
 public class AstarTree implements BtreeVisitor<State> {
 
+    private static final int TIME_PRINT_STATS = 1000;
     private static boolean PRINT_STATS = false;
     private static boolean DEBUG = false;
-    private final int TIME_PRINT_STATS = 1000;
-
     private HashSet<String> visitedStates;
 
-    private Btree openStateList;
+    private Btree<State>[] openStateLists;
 
     private Operation[] operations;
 
@@ -63,7 +62,10 @@ public class AstarTree implements BtreeVisitor<State> {
         this.operations = operations;
         this.heuristics = heuristics;
         this.visitedStates = new HashSet<String>();
-        this.openStateList = new Btree(heuristics.length);
+        this.openStateLists = new Btree[heuristics.length];
+        for (Btree<State> stateList : this.openStateLists) {
+            stateList = new Btree<State>();
+        }
         this.timeHeuristics = new long[this.heuristics.length];
         this.generatedStatesOperator = new long[this.operations.length];
         this.repeatedGeneratedStatesOperator = new long[this.operations.length];
@@ -101,7 +103,7 @@ public class AstarTree implements BtreeVisitor<State> {
         int heuristicIndex;
         int operatorIndex;
         State current;
-        int i;
+        int i, j;
         long t1;
         long t2;
         String hash;
@@ -115,15 +117,19 @@ public class AstarTree implements BtreeVisitor<State> {
         if (initialState != null) {
             visitedStates.clear();
             // visit and clear the btree
-            openStateList.visit(this, 0);
-            openStateList.clear();
+            openStateLists[0].visitInOrder(this);
+            for (Btree<State> openStateList : openStateLists) {
+                openStateList.clear();
+            }
 
             bestHeuristic = Integer.MAX_VALUE;
             currentStates = this.oneStateArray;
             for (i = 0; i < heuristicsLength; i++) {
                 initialState.heuristic[i] = heuristics[i].calculateHeuristic(initialState);
             }
-            openStateList.add(initialState);
+            for (Btree<State> openStateList : openStateLists) {
+                openStateList.add(initialState);
+            }
 
             visitedStatesNumber = 0;
             generatedStates = 0;
@@ -145,13 +151,22 @@ public class AstarTree implements BtreeVisitor<State> {
             timeToHash = 0;
             timeHashTable = 0;
             timeAddToTree = 0;
-
-        } else {
-            currentStates = openStateList.getFirst();
         }
 
-        while (bestHeuristic > 0 && targetTime >= System.currentTimeMillis() && currentVisitedStates < maximumVisitedStates && !openStateList.isEmpty()) {
-            currentStates = openStateList.getFirst();
+        while (bestHeuristic > 0 && targetTime >= System.currentTimeMillis() && currentVisitedStates < maximumVisitedStates && !openStateLists[0].isEmpty()) {
+            for (i = 0; i < openStateLists.length; i++) {
+                currentStates[i] = openStateLists[i].getFirst();
+            }
+            // clean up same states
+            for (i = 0; i < currentStates.length - 1; i++) {
+                if (currentStates[i] != null) {
+                    for (j = i + 1; j < currentStates.length; j++) {
+                        if (currentStates[i] == currentStates[j]) {
+                            currentStates[j] = null;
+                        }
+                    }
+                }
+            }
 
             if (DEBUG) {
                 System.out.println("---------- A STAR (get first nodes, one per heuristic if there are enough nodes) ----------");
@@ -219,7 +234,9 @@ public class AstarTree implements BtreeVisitor<State> {
                                     timeHeuristics[i] += t2 - t1;
                                 }
                                 t1 = System.nanoTime();
-                                openStateList.add(offspring);
+                                for (Btree<State> openStateList : openStateLists) {
+                                    openStateList.add(offspring);
+                                }
                                 t2 = System.nanoTime();
                                 timeAddToTree += t2 - t1;
                             }
@@ -304,7 +321,7 @@ public class AstarTree implements BtreeVisitor<State> {
 
         System.out.println("Time adding to tree: " + timeAddToTree + " ns");
         long treeSize = generatedStates - (visitedStatesNumber + repeatedGeneratedStates);
-        long realTreeSize = this.openStateList.getSize();
+        long realTreeSize = this.openStateLists[0].getSize();
         System.out.println("Approximate tree size: " + treeSize);
         System.out.println("Tree size: " + realTreeSize);
         double ratioList = timeAddToTree * 1.0 / treeSize;
