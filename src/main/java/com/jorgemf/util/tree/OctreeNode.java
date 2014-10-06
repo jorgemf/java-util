@@ -12,9 +12,9 @@ import java.util.List;
 
 public class OctreeNode<k extends Intersectable> extends AxisAlignedBoundingCuboid implements Sphere {
 
-    protected static final int X_BIT = 0x4;
-    protected static final int Y_BIT = 0x2;
-    protected static final int Z_BIT = 0x1;
+    public static final int X_BIT = 0x4;
+    public static final int Y_BIT = 0x2;
+    public static final int Z_BIT = 0x1;
     private OctreeNode<k>[] nodes;
     private List<k> objects;
     private OctreeNode<k> parent;

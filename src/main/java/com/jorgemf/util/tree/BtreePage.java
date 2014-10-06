@@ -16,6 +16,42 @@ public class BtreePage<k extends Comparable<k>> {
 
     private ResourcesFactory<BtreePage<k>> resourcesFactory;
 
+    private BtreePage(BtreePage<k> pageToClone, BtreePage<k> parentPage, ResourcesFactory<BtreePage<k>> resourcesFactory) {
+        this.resourcesFactory = resourcesFactory;
+        this.parentPage = parentPage;
+        parentPosition = pageToClone.parentPosition;
+        size = pageToClone.size;
+        nodes = (k[]) new Object[pageToClone.nodes.length];
+        for (int i = 0; i < nodes.length; i++) {
+            nodes[i] = pageToClone.nodes[i];
+        }
+        offspringPages = (BtreePage<k>[]) new BtreePage[pageToClone.offspringPages.length];
+        for (int i = 0; i < offspringPages.length; i++) {
+            if (pageToClone.offspringPages[i] != null) {
+                offspringPages[i] = pageToClone.offspringPages[i].clone(this, resourcesFactory);
+            }
+        }
+    }
+
+    protected BtreePage(int numberOfNodes, ResourcesFactory<BtreePage<k>> resourcesFactory) {
+        size = 0;
+        //noinspection unchecked
+        nodes = (k[]) (new Object[numberOfNodes]);
+        //noinspection unchecked
+        offspringPages = new BtreePage[numberOfNodes + 1];
+        parentPosition = -1;
+        parentPage = null;
+        this.resourcesFactory = resourcesFactory;
+    }
+
+    protected BtreePage<k> clone(BtreePage<k> parentPage, ResourcesFactory<BtreePage<k>> resourcesFactory) {
+        return new BtreePage<k>(this, parentPage, resourcesFactory);
+    }
+
+    protected BtreePage<k> clone(BtreePage<k> parentPage, ResourcesFactory<BtreePage<k>> resourcesFactory) {
+        return new BtreePage<k>(this, parentPage, resourcesFactory);
+    }
+
     protected BtreePage(int numberOfNodes, ResourcesFactory<BtreePage<k>> resourcesFactory) {
         size = 0;
         //noinspection unchecked
@@ -71,6 +107,10 @@ public class BtreePage<k extends Comparable<k>> {
         } else {
             return offspringPages[0].getFirstPage();
         }
+    }
+
+    public k getFirstFromPage() {
+        return nodes[0];
     }
 
     private int findOne(k object) {
@@ -395,11 +435,11 @@ public class BtreePage<k extends Comparable<k>> {
             offspringPages[index] = null;
         }
         if (!isLeave) {
-            BtreePage<k>[] rightPages = right.offspringPages;
             BtreePage<k>[] leftPages = left.offspringPages;
             for (int i = 0; i < left.size + 1; i++) {
                 leftPages[i].setParentPage(left, i);
             }
+            BtreePage<k>[] rightPages = right.offspringPages;
             for (int i = 0; i < right.size + 1; i++) {
                 rightPages[i].setParentPage(right, i);
             }

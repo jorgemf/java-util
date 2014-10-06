@@ -28,6 +28,23 @@ public class Trie<k> {
         this.maxDepth = maximumDepth;
     }
 
+    private Trie(Trie<k> trieToClone) {
+        maxDepth = trieToClone.maxDepth;
+        size = trieToClone.size;
+        depth = trieToClone.depth;
+        totalCounter = trieToClone.totalCounter;
+        for (Map.Entry<k, Integer> entry : trieToClone.eventNamesMap.entrySet()) {
+            eventNamesMap.put(entry.getKey(), entry.getValue());
+        }
+        for (k entry : trieToClone.eventNamesVector) {
+            eventNamesVector.add(entry);
+        }
+        for (Integer entry : trieToClone.sequence) {
+            sequence.add(entry);
+        }
+        root = trieToClone.root.clone(null);
+    }
+
     public void add(Collection<k> events) {
         if (maxDepth > 0 && events.size() > maxDepth) {
             throw new RuntimeException("Sequence is longer than expected");
@@ -140,7 +157,6 @@ public class Trie<k> {
         return totalCounter;
     }
 
-
     class TrieNode {
 
         private int keyEvent;
@@ -163,6 +179,19 @@ public class Trie<k> {
             } else {
                 depth = -1;
             }
+        }
+
+        private TrieNode(TrieNode nodeToClone, TrieNode parentNode) {
+            this(parentNode, nodeToClone.keyEvent);
+            counter = nodeToClone.counter;
+            childrend = new TreeMap<Integer, TrieNode>();
+            for (Map.Entry<Integer, TrieNode> entry : nodeToClone.childrend.entrySet()) {
+                childrend.put(entry.getKey(), entry.getValue().clone(this));
+            }
+        }
+
+        TrieNode clone(TrieNode newParentNode) {
+            return new TrieNode(this, newParentNode);
         }
 
         void increaseCounter() {
@@ -202,6 +231,7 @@ public class Trie<k> {
         int getDepth() {
             return depth;
         }
+
     }
 
 }

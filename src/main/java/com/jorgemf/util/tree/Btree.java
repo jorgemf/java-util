@@ -23,20 +23,36 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
         //noinspection unchecked
     }
 
+    private Btree(Btree<k> treeToClone) {
+        size = treeToClone.size;
+        nodesPerPage = treeToClone.nodesPerPage;
+        root = treeToClone.root.clone(null, this);
+    }
+
+    public Btree<k> clone() {
+        return new Btree<k>(this);
+    }
+
     public void add(k object) {
         size++;
         root.add(object);
     }
 
     public k getFirst() {
-        k object = root.getFirst();
-        remove(object);
+        k object = null;
+        if (root != null) {
+            BtreePage<k> firstPage = root.getFirstPage();
+            object = firstPage.getFirstFromPage();
+            if (firstPage.remove(object)) {
+                size--;
+            }
+        }
         return object;
     }
 
     public void remove(k object) {
         if (root.remove(object)) {
-            this.size--;
+            size--;
         }
     }
 
