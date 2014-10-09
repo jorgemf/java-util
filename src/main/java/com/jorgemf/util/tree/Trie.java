@@ -157,6 +157,26 @@ public class Trie<k> {
         return totalCounter;
     }
 
+    public void merge(Trie<k> trie) {
+        int[] trieEventsTranslator = new int[trie.eventNamesVector.size()];
+        for (int i = 0; i < trieEventsTranslator.length; i++) {
+            trieEventsTranslator[0] = getKey(trie.eventNamesVector.get(i));
+        }
+        merge(root, trie.root, trieEventsTranslator);
+        maxDepth = Math.max(maxDepth, trie.maxDepth);
+        depth = Math.max(depth, trie.depth);
+        totalCounter = totalCounter + trie.totalCounter;
+    }
+
+    private void merge(TrieNode node, TrieNode otherNode, int[] trieEventsTranslator) {
+        for (TrieNode otherNodeChild : otherNode.getChildren()) {
+            int key = trieEventsTranslator[otherNodeChild.keyEvent];
+            TrieNode nodeChild = getOrCreateChildNode(node, key);
+            nodeChild.counter += otherNodeChild.counter;
+            merge(nodeChild, otherNodeChild, trieEventsTranslator);
+        }
+    }
+
     class TrieNode {
 
         private int keyEvent;
