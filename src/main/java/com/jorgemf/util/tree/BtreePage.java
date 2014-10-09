@@ -450,17 +450,61 @@ public class BtreePage<k extends Comparable<k>> {
     private void split(int pagePosition, int objectPositionInMergedPage, k object, BtreePage<k> page) {
         BtreePage<k> leftPage = offspringPages[pagePosition];
         BtreePage<k> rightPage = offspringPages[pagePosition + 1];
+        k nodeInsertParent;
         BtreePage<k> centrePage = resourcesFactory.getResource();
         int totalSize = leftPage.size + rightPage.size;
         int nodesFirstPage = totalSize / 3;
         int nodesSecondPage = nodesFirstPage;
         int nodesThirdPage = totalSize - nodesFirstPage * 2;
+        boolean isLeave = leftPage.isLeave();
 
         if (objectPositionInMergedPage < nodesFirstPage) {
             // inside left page
+            nodeInsertParent = leftPage.nodes[nodesFirstPage];
+            int nodesFromLeft = leftPage.size - nodesFirstPage - 1;
+            int nodesFromRight = rightPage.size - nodesThirdPage;
+
+            // centre page
+            System.arraycopy(leftPage.nodes, nodesFirstPage + 1, centrePage.nodes, 0, nodesFromLeft);
+            centrePage.nodes[nodesFromLeft] = parentPage.nodes[objectPositionInMergedPage];
+            parentPage.nodes[objectPositionInMergedPage] = rightPage.nodes[nodesFromRight - 1];
+            System.arraycopy(rightPage.nodes, 0, centrePage.nodes, nodesFromLeft + 1, nodesFromRight - 1);
+            if (isLeave) {
+                System.arraycopy(leftPage.offspringPages, nodesFirstPage + 1, centrePage.offspringPages, 0, nodesFromLeft + 1);
+                System.arraycopy(rightPage.offspringPages, 0, centrePage.offspringPages, nodesFromLeft + 1, nodesFromRight);
+            }
+
+            // left
+            leftPage.insert(objectPositionInMergedPage,object,page);
+
+            // right
+            rightPage.shiftLeft(nodesFromRight,nodesFromRight);
+
+            // sizes and cleanup
+            for (int i = nodesFirstPage; i < leftPage.size; i++) {
+                leftPage.nodes[i] = null;
+                leftPage.offspringPages[i + 1] = null;
+            }
+            // shiftLeft makes the clean up for the right page
+            leftPage.size = nodesFirstPage;
+            centrePage.size = nodesSecondPage;
+            rightPage.size = nodesThirdPage;
 
         } else if (objectPositionInMergedPage == nodesFirstPage) {
             // in parent page in left position
+            nodeInsertParent = leftPage.nodes[nodesFirstPage];
+            int nodesFromLeft = leftPage.size - nodesFirstPage;
+            int nodesFromRight = rightPage.size - nodesThirdPage;
+
+            // centre page
+            System.arraycopy(leftPage.nodes, nodesFirstPage, centrePage.nodes, 0, nodesFromLeft);
+            centrePage.nodes[nodesFromLeft] = parentPage.nodes[objectPositionInMergedPage];
+            parentPage.nodes[objectPositionInMergedPage] = rightPage.nodes[nodesFromRight - 1];
+            System.arraycopy(rightPage.nodes, 0, centrePage.nodes, nodesFromLeft + 1, nodesFromRight - 1);
+            if (isLeave) {
+                System.arraycopy(leftPage.offspringPages, nodesFirstPage + 1, centrePage.offspringPages, 0, nodesFromLeft + 1);
+                System.arraycopy(rightPage.offspringPages, 0, centrePage.offspringPages, nodesFromLeft + 1, nodesFromRight);
+            }
 
         } else if (objectPositionInMergedPage < nodesFirstPage + 1 + nodesSecondPage) {
             // inside center page
@@ -472,11 +516,17 @@ public class BtreePage<k extends Comparable<k>> {
             // inside left page
 
         }
+        if (isLeave) {
+            for (int i = 0; i < centrePage.size + 1; i++) {
+                centrePage.offspringPages[i].parentPage = this;
+                centrePage.offspringPages[i].parentPosition = i;
+            }
+        }
+
+        parentPage.insert(pagePosition, nodeInsertParent, centrePage);
 
 
-
-
-
+        // ----------- OLD CODE ----------- //
 
 
         BtreePage lastPage = btree.getResource();
@@ -893,6 +943,11 @@ public class BtreePage<k extends Comparable<k>> {
     }
 
     protected void checkIntegrity() {
+        if (parentPage != null) {
+            if (parentPage.offspringPages[parentPosition] != this) {
+                throw new RuntimeException();
+            }
+        }
         if (offspringPages[0] != null) {
             for (int i = 0; i <= size; i++) {
                 if (offspringPages[i].parentPage != this) {
