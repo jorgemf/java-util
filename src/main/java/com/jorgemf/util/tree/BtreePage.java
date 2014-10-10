@@ -315,42 +315,42 @@ public class BtreePage<k extends Comparable<k>> {
     }
 
 
-//    private void rotateRight(int nodePos) {
-//        BtreePage<k> leftPage = offspringPages[nodePos];
-//        BtreePage<k> rightPage = offspringPages[nodePos + 1];
-//        rightPage.shiftRight(0, 1);
-//        rightPage.nodes[0] = nodes[nodePos];
-//        nodes[nodePos] = leftPage.nodes[leftPage.size - 1];
-//        leftPage.nodes[leftPage.size - 1] = null;
-//        if (!rightPage.isLeave()) {
-//            BtreePage<k>[] rightPages = rightPage.offspringPages;
-//            BtreePage<k>[] leftPages = leftPage.offspringPages;
-//
-//            rightPages[1] = rightPages[0];
-//            rightPages[1].parentPosition = 1;
-//            rightPages[0] = leftPages[leftPage.size];
-//            rightPages[0].setParentPage(rightPage, 0);
-//
-//            leftPages[leftPage.size] = null;
-//        }
-//        leftPage.size--;
-//    }
-//
-//    private void rotateLeft(int nodePos) {
-//        BtreePage<k> leftPage = offspringPages[nodePos];
-//        BtreePage<k> rightPage = offspringPages[nodePos + 1];
-//        leftPage.nodes[leftPage.size] = nodes[nodePos];
-//        nodes[nodePos] = rightPage.nodes[0];
-//        leftPage.size++;
-//        if (!rightPage.isLeave()) {
-//            BtreePage<k>[] rightPages = rightPage.offspringPages;
-//            BtreePage<k>[] leftPages = leftPage.offspringPages;
-//
-//            leftPages[leftPage.size] = rightPages[0];
-//            leftPages[leftPage.size].setParentPage(leftPage, leftPage.size);
-//        }
-//        rightPage.shiftLeft(1, 1);
-//    }
+    private void rotateRight(int nodePos) {
+        BtreePage<k> leftPage = offspringPages[nodePos];
+        BtreePage<k> rightPage = offspringPages[nodePos + 1];
+        rightPage.shiftRight(0, 1);
+        rightPage.nodes[0] = nodes[nodePos];
+        nodes[nodePos] = leftPage.nodes[leftPage.size - 1];
+        leftPage.nodes[leftPage.size - 1] = null;
+        if (!rightPage.isLeave()) {
+            BtreePage<k>[] rightPages = rightPage.offspringPages;
+            BtreePage<k>[] leftPages = leftPage.offspringPages;
+
+            rightPages[1] = rightPages[0];
+            rightPages[1].parentPosition = 1;
+            rightPages[0] = leftPages[leftPage.size];
+            rightPages[0].setParentPage(rightPage, 0);
+
+            leftPages[leftPage.size] = null;
+        }
+        leftPage.size--;
+    }
+
+    private void rotateLeft(int nodePos) {
+        BtreePage<k> leftPage = offspringPages[nodePos];
+        BtreePage<k> rightPage = offspringPages[nodePos + 1];
+        leftPage.nodes[leftPage.size] = nodes[nodePos];
+        nodes[nodePos] = rightPage.nodes[0];
+        leftPage.size++;
+        if (!rightPage.isLeave()) {
+            BtreePage<k>[] rightPages = rightPage.offspringPages;
+            BtreePage<k>[] leftPages = leftPage.offspringPages;
+
+            leftPages[leftPage.size] = rightPages[0];
+            leftPages[leftPage.size].setParentPage(leftPage, leftPage.size);
+        }
+        rightPage.shiftLeft(1, 1);
+    }
 
     private void splitRoot(int objectPosition, k object, BtreePage<k> page) {
         if (parentPage != null && size != nodes.length) {
@@ -475,10 +475,10 @@ public class BtreePage<k extends Comparable<k>> {
             }
 
             // left
-            leftPage.insert(objectPositionInMergedPage,object,page);
+            leftPage.insert(objectPositionInMergedPage, object, page);
 
             // right
-            rightPage.shiftLeft(nodesFromRight,nodesFromRight);
+            rightPage.shiftLeft(nodesFromRight, nodesFromRight);
 
             // sizes and cleanup
             for (int i = nodesFirstPage; i < leftPage.size; i++) {
@@ -492,7 +492,7 @@ public class BtreePage<k extends Comparable<k>> {
 
         } else if (objectPositionInMergedPage == nodesFirstPage) {
             // in parent page in left position
-            nodeInsertParent = leftPage.nodes[nodesFirstPage];
+            nodeInsertParent = object;
             int nodesFromLeft = leftPage.size - nodesFirstPage;
             int nodesFromRight = rightPage.size - nodesThirdPage;
 
@@ -502,18 +502,38 @@ public class BtreePage<k extends Comparable<k>> {
             parentPage.nodes[objectPositionInMergedPage] = rightPage.nodes[nodesFromRight - 1];
             System.arraycopy(rightPage.nodes, 0, centrePage.nodes, nodesFromLeft + 1, nodesFromRight - 1);
             if (isLeave) {
-                System.arraycopy(leftPage.offspringPages, nodesFirstPage + 1, centrePage.offspringPages, 0, nodesFromLeft + 1);
+                centrePage.offspringPages[0] = page;
+                System.arraycopy(leftPage.offspringPages, nodesFirstPage + 1, centrePage.offspringPages, 1, nodesFromLeft);
                 System.arraycopy(rightPage.offspringPages, 0, centrePage.offspringPages, nodesFromLeft + 1, nodesFromRight);
             }
+            // left
+            // keep at it is without the moved nodes
 
+            // right
+            nodes[pagePosition] = rightPage.nodes[nodesFromRight];
+            rightPage.shiftLeft(nodesFromRight + 1, nodesFromRight + 1);
+            rightPage.offspringPages[0] = page;
+
+            // sizes and cleanup
+            for (int i = nodesFirstPage; i < leftPage.size; i++) {
+                leftPage.nodes[i] = null;
+                leftPage.offspringPages[i + 1] = null;
+            }
+            // shiftLeft makes the clean up for the right page
+            leftPage.size = nodesFirstPage;
+            centrePage.size = nodesSecondPage;
+            rightPage.size = nodesThirdPage;
         } else if (objectPositionInMergedPage < nodesFirstPage + 1 + nodesSecondPage) {
             // inside center page
+
+            // inside the left nodes, before the parent node, after the parent node, inside the right nodes
+
 
         } else if (objectPositionInMergedPage == nodesFirstPage + 1 + nodesSecondPage) {
             // in parent page in right position
 
         } else {
-            // inside left page
+            // inside right page
 
         }
         if (isLeave) {
@@ -524,152 +544,18 @@ public class BtreePage<k extends Comparable<k>> {
         }
 
         parentPage.insert(pagePosition, nodeInsertParent, centrePage);
-
-
-        // ----------- OLD CODE ----------- //
-
-
-        BtreePage lastPage = btree.getResource();
-        k[] auxNodes = btree.auxNodes;
-        BtreePage<k>[] auxPages = btree.auxPages;
-        // left
-        System.arraycopy(leftPage.nodes, 0, auxNodes, 0, leftPage.size);
-        auxNodes[leftPage.size] = parentNode
-
-        System.arraycopy(rightPage.nodes, 0, auxNodes, leftPage.size, rightPage.size);
-
-
-        int nodesPerPage = nodes.length * 2 / 3;
-        int difference = nodes.length * 2 - nodesPerPage * 3;
-        int nodesFirstPage = nodesPerPage;
-        int nodesSecondPage = nodesPerPage;
-        if (difference == 1) {
-            nodesFirstPage = nodesPerPage + 1;
-        } else if (difference == 2) {
-            nodesFirstPage = nodesPerPage + 1;
-            nodesSecondPage = nodesPerPage + 1;
-        } else if (difference != 0) {
-            throw new RuntimeException();
-        }
-        int nodesLastPage = leftPage.size + rightPage.size + size - nodesFirstPage - nodesSecondPage - 2;
-
-        for (int i = 0; i < auxNodes.length; i++) {
-            auxNodes[i] = null;
-            auxPages[i] = null;
-        }
-        auxPages[auxNodes.length] = null;
-        int i = 0;
-        boolean added = false;
-        int j = 0;
-        // merge all
-        // left page
-        auxPages[i] = leftPage.offspringPages[j];
-        int stateHeuristic = object.heuristic[heuristic];
-        while (j < leftPage.size) {
-            if (!added && (stateHeuristic < leftPage.nodes[j].heuristic[heuristic] || (
-                    stateHeuristic == leftPage.nodes[j].heuristic[heuristic] && page != null &&
-                            stateHeuristic < leftPage.offspringPages[j + 1].getLast().heuristic[heuristic]))) {
-                auxNodes[i] = object;
-                auxPages[i + 1] = page;
-                added = true;
-            } else {
-                auxNodes[i] = leftPage.nodes[j];
-                auxPages[i + 1] = leftPage.offspringPages[j + 1];
-                j++;
-            }
-            i++;
-        }
-        // parent node
-        if (!added && (stateHeuristic < parentPage.nodes[thisPagePos].heuristic[heuristic] || (
-                stateHeuristic == parentPage.nodes[thisPagePos].heuristic[heuristic] && page != null &&
-                        stateHeuristic < rightPage.offspringPages[0].getLast().heuristic[heuristic]))) {
-            auxNodes[i] = object;
-            auxPages[i + 1] = page;
-            added = true;
-            i++;
-        }
-        auxNodes[i] = parentPage.nodes[thisPagePos];
-        //right page
-        i++;
-        j = 0;
-        auxPages[i] = rightPage.offspringPages[0];
-        while (j < rightPage.size) {
-            if (!added && (stateHeuristic < rightPage.nodes[j].heuristic[heuristic] || (
-                    stateHeuristic == rightPage.nodes[j].heuristic[heuristic] && page != null &&
-                            stateHeuristic < rightPage.offspringPages[j + 1].getLast().heuristic[heuristic]))) {
-                auxNodes[i] = object;
-                auxPages[i + 1] = page;
-                added = true;
-            } else {
-                auxNodes[i] = rightPage.nodes[j];
-                auxPages[i + 1] = rightPage.offspringPages[j + 1];
-                j++;
-            }
-            i++;
-        }
-        if (!added) {
-            auxNodes[i] = object;
-            auxPages[i + 1] = page;
-        }
-
-        // split merged nodes
-        for (i = 0; i < nodesFirstPage; i++) {
-            leftPage.offspringPages[i] = auxPages[i];
-            leftPage.nodes[i] = auxNodes[i];
-        }
-        leftPage.offspringPages[i] = auxPages[i];
-        if (auxPages[0] != null) {
-            for (int k = 0; k <= i; k++) {
-                leftPage.offspringPages[k].parentPage = leftPage;
-            }
-        }
-        for (int k = i; k < leftPage.size; k++) {
-            leftPage.nodes[k] = null;
-            leftPage.offspringPages[k + 1] = null;
-        }
-        leftPage.size = nodesFirstPage;
-        parentPage.nodes[thisPagePos] = auxNodes[i];
-        j = i + 1;
-        for (i = 0; i < nodesSecondPage; i++) {
-            rightPage.offspringPages[i] = auxPages[j];
-            rightPage.nodes[i] = auxNodes[j];
-            j++;
-        }
-        rightPage.offspringPages[i] = auxPages[j];
-        if (auxPages[0] != null) {
-            for (int k = 0; k <= i; k++) {
-                rightPage.offspringPages[k].parentPage = rightPage;
-            }
-        }
-        for (int k = i; k < rightPage.size; k++) {
-            rightPage.nodes[k] = null;
-            rightPage.offspringPages[k + 1] = null;
-        }
-        rightPage.size = nodesSecondPage;
-        k newNodeToAddInParent = auxNodes[j];
-        j++;
-        for (i = 0; i < nodesPerPage; i++) {
-            lastPage.nodes[i] = auxNodes[j];
-            lastPage.offspringPages[i] = auxPages[j];
-            j++;
-        }
-        lastPage.offspringPages[i] = auxPages[j];
-        if (auxPages[0] != null) {
-            for (int k = 0; k <= i; k++) {
-                lastPage.offspringPages[k].parentPage = lastPage;
-            }
-        }
-        lastPage.size = nodesPerPage;
-        parentPage.add(newNodeToAddInParent, lastPage);    // bear in mind the position
     }
 
     private void performPostRemovingOperations() {
-        BtreePage left, middle, right;
-        int thisPagePos = 0;
-        BtreePage<k> parent = parentPage;
-        while (parent.offspringPages[thisPagePos] != this) {
-            thisPagePos++;
+        if (parentPosition == 0) {
+
+        } else if (parentPosition == parentPage.size && parentPage.size > 1) {
+
+        } else {
+
         }
+
+        BtreePage left, middle, right;
         int middlePagePos = thisPagePos;
         if (thisPagePos == 0) {
             left = this;
@@ -727,211 +613,53 @@ public class BtreePage<k extends Comparable<k>> {
         }
     }
 
-    private void balancePages(BtreePage<k> left, BtreePage<k> right) {
-        int difference = left.size - right.size;
-        BtreePage<k> parent = parentPage;
-        int parentLeftPagePos = 0;
-        while (parent.offspringPages[parentLeftPagePos] != left) {
-            parentLeftPagePos++;
+    private void mergeRoot() {
+        BtreePage<k> left = offspringPages[0];
+        BtreePage<k> right = offspringPages[1];
+        if (size != 1 || left.size + right.size + 1 > nodes.length) {
+            throw new RuntimeException();
         }
-        if (difference < -1) { // rotate left
-            int shiftSize = -difference / 2;
-            // add the node from the parent
-            left.nodes[left.size] = parent.nodes[parentLeftPagePos];
+        System.arraycopy(left.nodes, 0, nodes, 0, left.size);
+        nodes[left.size] = nodes[0];
+        System.arraycopy(right.nodes, 0, nodes, left.size + 1, right.size);
 
-            // restore node from left page
-            parent.nodes[parentLeftPagePos] = right.nodes[shiftSize - 1];
-            // add elements to left page
-            for (int i = 0; i < shiftSize - 1; i++) {
-                left.nodes[left.size + 1 + i] = right.nodes[i];
-                left.offspringPages[left.size + 1 + i + 1] = right.offspringPages[i + 1];
+        if (!left.isLeave()) {
+            System.arraycopy(left.offspringPages, 0, offspringPages, 0, left.size + 1);
+            System.arraycopy(right.offspringPages, 0, offspringPages, left.size + 1, right.size + 1);
+            for (int i = 0; i < size + 1; i++) {
+                offspringPages[i].setParentPage(this, i);
             }
-            // add the reference from right page
-            left.offspringPages[left.size + 1] = right.offspringPages[0];
-            if (left.offspringPages[0] != null) {
-                for (int i = left.size; i <= left.size + shiftSize; i++) {
-                    left.offspringPages[i].parentPage = left;
-                }
-            }
-            // shift right page to the left
-            right.offspringPages[0] = right.offspringPages[shiftSize];
-            for (int i = 0; i < right.size - shiftSize; i++) {
-                right.nodes[i] = right.nodes[i + shiftSize];
-                right.offspringPages[i + 1] = right.offspringPages[i + shiftSize + 1];
-            }
-            // just for detecting problems
-            for (int i = right.size - shiftSize; i < right.size; i++) {
-                right.nodes[i] = null;
-                right.offspringPages[i + 1] = null;
-            }
-            // update sizes
-            right.size -= shiftSize;
-            left.size += shiftSize;
-        } else if (difference > 1) { // rotate right
-            int shiftSize = difference / 2;
-            // shift right page to the right
-            right.offspringPages[right.size + shiftSize] = right.offspringPages[right.size];
-            for (int i = right.size - 1; i >= 0; i--) {
-                right.offspringPages[i + shiftSize] = right.offspringPages[i];
-                right.nodes[i + shiftSize] = right.nodes[i];
-            }
-            // add the node from the parent
-            right.nodes[shiftSize - 1] = parent.nodes[parentLeftPagePos];
-            // restore node from left page
-            parent.nodes[parentLeftPagePos] = left.nodes[left.size - shiftSize];
-            // add references from left page;
-            for (int i = left.size - shiftSize + 1; i < left.size; i++) {
-                right.nodes[i - (left.size - shiftSize + 1)] = left.nodes[i];
-                right.offspringPages[i - (left.size - shiftSize)] = left.offspringPages[i + 1];
-            }
-            // add the page reference of left page to the right
-            right.offspringPages[0] = left.offspringPages[left.size - shiftSize + 1];
-            if (right.offspringPages[0] != null) {
-                for (int i = 0; i <= shiftSize; i++) {
-                    right.offspringPages[i].parentPage = right;
-                }
-            }
-            // just for detecting problems
-            for (int i = left.size - shiftSize; i < left.size; i++) {
-                left.nodes[i] = null;
-                left.offspringPages[i + 1] = null;
-            }
-            // update sizes
-            right.size += shiftSize;
-            left.size -= shiftSize;
         }
-    }
-
-    private void mergeToRoot(BtreePage<k> left, BtreePage<k> right) {
-        BtreePage<k> root = parentPage;
-        if (root.size != 1) {
-            throw new RuntimeException("Fatal error!");
-        }
-        // move root node
-        root.nodes[left.size] = root.nodes[0];
-        // add nodes in left page
-        for (int i = 0; i < left.size; i++) {
-            root.nodes[i] = left.nodes[i];
-            root.offspringPages[i] = left.offspringPages[i];
-        }
-        root.offspringPages[left.size] = left.offspringPages[left.size];
-        // add nodes in right page
-        for (int i = 0; i < right.size; i++) {
-            root.nodes[i + left.size + 1] = right.nodes[i];
-            root.offspringPages[i + left.size + 1] = right.offspringPages[i];
-        }
-        root.offspringPages[right.size + left.size + 1] = right.offspringPages[right.size];
-        root.size = 1 + left.size + right.size;
+        size = left.size + right.size + 1;
         clear(left);
         clear(right);
-        if (root.offspringPages[0] != null) {
-            for (int i = 0; i <= root.size; i++) {
-                root.offspringPages[i].parentPage = root;
-            }
-        }
     }
 
-    private void balancePages(BtreePage<k> left, BtreePage<k> middle, BtreePage<k> right, int middlePagePos) {
-        int minimumSize = nodes.length * 2 / 3;
-        boolean change;
-        do {
-            change = false;
-            if (left.size < minimumSize) {
-                middle.rotateLeft(middlePagePos, left);
-                change = true;
-            } else if (right.size < minimumSize) {
-                middle.rotateRight(middlePagePos, right);
-                change = true;
-            } else if (middle.size < minimumSize) {
-                if (left.size > right.size) {
-                    left.rotateRight(middlePagePos - 1, middle);
-                } else {
-                    right.rotateLeft(middlePagePos + 1, middle);
-                }
-                change = true;
-            }
-        } while (change);
-    }
-
-    private void mergePages(BtreePage<k> left, BtreePage<k> middle, BtreePage<k> right, int middlePagePos) {
-        BtreePage<k> parent = parentPage;
+    private void merge(int middlePagePos) {
+        BtreePage<k> left = offspringPages[middlePagePos - 1];
+        BtreePage<k> middle = offspringPages[middlePagePos];
+        BtreePage<k> right = offspringPages[middlePagePos + 1];
         int sumSizes = left.size + middle.size + right.size + 1;
         if (sumSizes > nodes.length * 2) {
             throw new RuntimeException();
         }
-        int rightFinalSize = sumSizes / 2;
-        int leftFinalSize = sumSizes - rightFinalSize;
-        k[] auxNodes = btree.auxNodes;
-        BtreePage<k>[] auxPages = btree.auxPages;
-        for (int i = 0; i < sumSizes + 1; i++) {
-            auxNodes[i] = null;
-            auxPages[i] = null;
+        int leftNodes = nodes.length - left.size - 1;
+        int rightNodes = middle.size - leftNodes - 1;
+        left.nodes[left.size] = nodes[middlePagePos];
+        System.arraycopy(middle.nodes, 0, left.nodes, left.size + 1, leftNodes);
+        right.shiftRight(0, rightNodes);
+        System.arraycopy(middle.nodes, leftNodes + 2, right, 0, rightNodes);
+
+        nodes[middlePagePos] = right.nodes[rightNodes];
+
+        // TODO
+
+
+        if (!middle.isLeave()) {
+
         }
-        auxPages[sumSizes + 2] = null;
-        int j = 0;
-        // merge
-        for (int i = 0; i < left.size; i++) {
-            auxNodes[i] = left.nodes[i];
-            auxPages[i] = left.offspringPages[i];
-        }
-        j = left.size;
-        auxPages[j] = left.offspringPages[j];
-        auxNodes[j] = parent.nodes[middlePagePos - 1];
-        j++;
-        for (int i = 0; i < middle.size; i++) {
-            auxNodes[j] = middle.nodes[i];
-            auxPages[j] = middle.offspringPages[i];
-            j++;
-        }
-        auxPages[j] = middle.offspringPages[middle.size];
-        auxNodes[j] = parent.nodes[middlePagePos];
-        j++;
-        for (int i = 0; i < right.size; i++) {
-            auxNodes[j] = right.nodes[i];
-            auxPages[j] = right.offspringPages[i];
-            j++;
-        }
-        auxPages[j] = right.offspringPages[right.size];
-        // split
-        for (int i = 0; i < leftFinalSize; i++) {
-            left.nodes[i] = auxNodes[i];
-            left.offspringPages[i] = auxPages[i];
-        }
-        j = leftFinalSize;
-        left.offspringPages[j] = auxPages[j];
-        left.size = leftFinalSize;
-        // remove empty pos from parent
-        parent.nodes[middlePagePos - 1] = auxNodes[j];
-        j++;
-        for (int i = middlePagePos; i < parent.size - 1; i++) {
-            parent.nodes[i] = parent.nodes[i + 1];
-            parent.offspringPages[i + 1] = parent.offspringPages[i + 2];
-        }
-        parent.offspringPages[middlePagePos] = right;
-        parent.nodes[parent.size - 1] = null;
-        parent.offspringPages[parent.size] = null;
-        parent.size--;
-        for (int i = 0; i < rightFinalSize; i++) {
-            right.nodes[i] = auxNodes[j];
-            right.offspringPages[i] = auxPages[j];
-            j++;
-        }
-        right.offspringPages[rightFinalSize] = auxPages[j];
-        right.size = rightFinalSize;
-        // parent pages
-        if (left.offspringPages[0] != null) {
-            for (int i = 0; i <= left.size; i++) {
-                left.offspringPages[i].parentPage = left;
-            }
-            for (int i = 0; i <= right.size; i++) {
-                right.offspringPages[i].parentPage = right;
-            }
-        }
+        shiftLeft(middlePagePos+2,1);
         clear(middle);
-        // perform more post removing operations in parent if needed
-        if (parent.size < (nodes.length * 2 / 3) && parent.parentPage != null) {
-            parent.performPostRemovingOperations();
-        }
     }
 
     @Override
