@@ -2,6 +2,9 @@ package com.jorgemf.util.tree;
 
 import com.jorgemf.util.ResourcesFactory;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k>> {
 
     private static final int NODES_PER_PAGE = 6;

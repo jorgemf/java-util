@@ -460,7 +460,7 @@ public class BtreePage<k extends Comparable<k>> {
 
         if (objectPositionInMergedPage < nodesFirstPage) {
             // inside left page
-            nodeInsertParent = leftPage.nodes[nodesFirstPage];
+            nodeInsertParent = leftPage.nodes[nodesFirstPage-1];
             int nodesFromLeft = leftPage.size - nodesFirstPage - 1;
             int nodesFromRight = rightPage.size - nodesThirdPage;
 
@@ -525,12 +525,19 @@ public class BtreePage<k extends Comparable<k>> {
             rightPage.size = nodesThirdPage;
         } else if (objectPositionInMergedPage < nodesFirstPage + 1 + nodesSecondPage) {
             // inside center page
+            nodeInsertParent = leftPage.nodes[nodesFirstPage];
+            int nodesFromLeft = leftPage.size - nodesFirstPage;
+            int nodesFromRight = rightPage.size - nodesThirdPage;
+
 
             // inside the left nodes, before the parent node, after the parent node, inside the right nodes
 
 
         } else if (objectPositionInMergedPage == nodesFirstPage + 1 + nodesSecondPage) {
             // in parent page in right position
+            nodeInsertParent = object;
+            int nodesFromLeft = leftPage.size - nodesFirstPage;
+            int nodesFromRight = rightPage.size - nodesThirdPage;
 
         } else {
             // inside right page
@@ -709,7 +716,7 @@ public class BtreePage<k extends Comparable<k>> {
         for (int i = 0; i <= size; i++) {
             if (offspringPages[i] != null) {
                 offspringPages[i].clear();
-                btree.releaseResource(offspringPages[i]);
+                resourcesFactory.releaseResource(offspringPages[i]);
             }
             offspringPages[i] = null;
         }
