@@ -45,7 +45,7 @@ public class Trie<k> {
         root = trieToClone.root.clone(null);
     }
 
-    public void add(Collection<k> events) {
+    public void add(List<k> events) {
         if (maxDepth > 0 && events.size() > maxDepth) {
             throw new RuntimeException("Sequence is longer than expected");
         }
@@ -174,6 +174,31 @@ public class Trie<k> {
             TrieNode nodeChild = getOrCreateChildNode(node, key);
             nodeChild.counter += otherNodeChild.counter;
             merge(nodeChild, otherNodeChild, trieEventsTranslator);
+        }
+    }
+
+    public Trie<k> reverse() {
+        Trie<k> reservedTrie = new Trie<k>();
+        reservedTrie.eventNamesMap.putAll(eventNamesMap);
+        reservedTrie.eventNamesVector.addAll(eventNamesVector);
+        reservedTrie.size = size;
+        reservedTrie.depth = depth;
+        reservedTrie.totalCounter = totalCounter;
+        reservedTrie.maxDepth = maxDepth;
+        reverse(root, reservedTrie, new LinkedList<TrieNode>());
+        return reservedTrie;
+    }
+
+    private void reverse(TrieNode currentNode, Trie<k> reversedTrie, List<TrieNode> reversedSequence) {
+        TrieNode reversedCurrentNode = reversedTrie.root;
+        for (TrieNode reversedNode : reversedSequence) {
+            reversedCurrentNode = reversedTrie.getOrCreateChildNode(reversedCurrentNode, reversedNode.keyEvent);
+            reversedCurrentNode.counter += reversedNode.counter;
+        }
+        for (TrieNode node : currentNode.getChildren()) {
+            reversedSequence.add(0, node);
+            reverse(node, reversedTrie, reversedSequence);
+            reversedSequence.remove(0);
         }
     }
 

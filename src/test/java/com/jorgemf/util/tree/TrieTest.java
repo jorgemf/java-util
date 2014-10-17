@@ -20,4 +20,9 @@ public class TrieTest {
         fail();
     }
 
+    @Test
+    public void testReverse() throws Exception {
+        fail();
+    }
+
 }
