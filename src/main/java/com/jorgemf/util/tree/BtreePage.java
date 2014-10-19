@@ -551,7 +551,6 @@ public class BtreePage<k extends Comparable<k>> {
                 centrePage.offspringPages[i].setParentPage(this, i);
             }
         }
-
         parentPage.insert(pagePosition, nodeInsertParent, centrePage);
     }
 
