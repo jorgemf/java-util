@@ -79,6 +79,16 @@ public class Vector3f implements Vector{
 		return this;
 	}
 
+	public final Vector3f cross(final Vector3f w) {
+		float x = this.y * w.z - this.z * w.y;
+		float y = w.x * this.z - w.z * this.x;
+		float z = this.x * w.y - this.y * w.x;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		return this;
+	}
+
 	public final Vector3f cross(final Vector3f v, final Vector3f w) {
 		this.x = v.y * w.z - v.z * w.y;
 		this.y = w.x * v.z - w.z * v.x;
@@ -236,6 +246,7 @@ public class Vector3f implements Vector{
 		return this.dot((Vector3f) v);
 	}
 
+	@Override
 	public final Vector clone(){
 		return new Vector3f(this);
 	}

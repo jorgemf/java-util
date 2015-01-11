@@ -162,6 +162,7 @@ public class Vector2f implements Vector {
 		return x * x + y * y;
 	}
 
+	@Override
 	public final Vector clone(){
 		return new Vector2f(this);
 	}

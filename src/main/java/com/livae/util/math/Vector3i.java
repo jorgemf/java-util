@@ -108,6 +108,28 @@ public class Vector3i implements Vector {
 	public final double length2() {
 		return x * x + y * y + z * z;
 	}
+
+	public final Vector3i cross(final Vector3i w) {
+		int x = this.y * w.z - this.z * w.y;
+		int y = w.x * this.z - w.z * this.x;
+		int z = this.x * w.y - this.y * w.x;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		return this;
+	}
+
+	public final Vector3i cross(final Vector3i v, final Vector3i w) {
+		this.x = v.y * w.z - v.z * w.y;
+		this.y = w.x * v.z - w.z * v.x;
+		this.z = v.x * w.y - v.y * w.x;
+		return this;
+	}
+
+	public final double dot(final Vector3i v) {
+		return x * v.x + y * v.y + z * v.z;
+	}
+
 	public final boolean equals(final Vector v) {
 		return v instanceof Vector3i && this.equals((Vector3i) v);
 	}
@@ -200,6 +222,7 @@ public class Vector3i implements Vector {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public final Vector clone(){
 		return new Vector3i(this);
 	}
