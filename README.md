@@ -1,8 +1,6 @@
-jorgemf-java-util
-===========
+# livae-java-util
 
-set of utilities in java, data structures, parallel runtime & search algorithms  *(under construction)*
------------
+## set of utilities in java, data structures & search algorithms  *(under construction)*
 
 - data structures:
   - trie
@@ -11,28 +9,19 @@ set of utilities in java, data structures, parallel runtime & search algorithms 
 - search algorithms
   - a-star (normal and parallel version)
   - genetic algorithm (normal and parallel version)
-  - genetic programming
-  - nsga-II
-  - simulated annealing
-- parallel runtime
-  - run tasks in parallel (thread pool) 
-  - blackboard agents
-  - events
 
+## License
 
-other ideas for the future:
----------
+    Copyright 2014, 2015 Jorge Muñoz Fuentes
 
-- statistical package (something similar to R)
-- graph visualization (at least integration with gnuplot or something similar)
-- clients-service architecture (with master)
-- map reduce with network communication (using previous architecture), flume or cloud data flow for small clusters  
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-for developers:
----------
+       http://www.apache.org/licenses/LICENSE-2.0
 
-- IDE intellj idea ultimate
-- using Junit 4.0 for testing
-
-
-
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
