@@ -53,7 +53,7 @@ public class Frustum {
 
 	private CONTAINS contains(Vector3f center, float radius) {
 		if (radius >= minimumRadius) {
-			float d2 = center.distanceEuclidean2(center);
+			double d2 = center.distanceEuclidean2(center);
 			float r = radius + radius;
 			if (d2 < r * r) {
 				return CONTAINS.INTERSECTION;

@@ -245,9 +245,9 @@ public class Quaternion {
 	 * @link http://stackoverflow.com/questions/1171849/finding-quaternion-representing-the-rotation-from-one-vector-to-another
 	 */
 	public final void setAngle(Vector3f u, Vector3f v) {
-		float dot = u.dot(v);
-		float lengths = (float) Math.sqrt(u.length2() * v.length2());
-		float angle = dot / lengths;
+		double dot = u.dot(v);
+		double lengths = Math.sqrt(u.length2() * v.length2());
+		double angle = dot / lengths;
 		if (angle >= (1 - TOLERANCE)) {
 			// parallel vectors, null angle
 			x = 0;
@@ -260,7 +260,7 @@ public class Quaternion {
 			z = 1;
 			w = 0;
 		} else {
-			w = lengths + dot;
+			w = (float)(lengths + dot);
 			final Vector3f auxVector = new Vector3f();
 			auxVector.cross(v, u);
 			x = auxVector.x;

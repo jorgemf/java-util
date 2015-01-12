@@ -36,9 +36,9 @@ public abstract class ResourcesFactory<k> {
 	public void releaseResource(k resource) {
 		if (resources.length == lastFreeResource + 1) {
 			//noinspection unchecked
-			k[] newlist = (k[]) (new Object[resources.length + increment]);
-			System.arraycopy(resources, 0, newlist, 0, resources.length);
-			resources = newlist;
+			k[] newList = (k[]) (new Object[resources.length + increment]);
+			System.arraycopy(resources, 0, newList, 0, resources.length);
+			resources = newList;
 		}
 		lastFreeResource++;
 		resources[lastFreeResource] = resource;
