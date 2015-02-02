@@ -53,6 +53,18 @@ public class BtreeTest {
 		}
 	}
 
+	private static class BtreePrinterVisitor implements BtreeVisitor<Integer> {
+
+		public static final BtreePrinterVisitor instance = new BtreePrinterVisitor();
+
+		public void visit(final Integer object, final int deep) {
+			for (int i = 0; i < deep; i++) {
+				System.out.print("  ");
+			}
+			System.out.println(object);
+		}
+	}
+
 	@Test
 	public void testAddRemove() throws Exception {
 		for (int nodesPerPage = 3; nodesPerPage < 7; nodesPerPage++) {
@@ -73,11 +85,7 @@ public class BtreeTest {
 			for (int i = 0; i < totalNodes; i++) {
 				Btree<Integer> clone = btree.clone();
 				for (int j = 0; j < totalNodes; j++) {
-					System.out.println("removing: " + (i + j) % totalNodes);
-					System.out.println(clone.getDebugString());
 					clone.remove((i + j) % totalNodes);
-					System.out.println(clone.getDebugString());
-					System.out.println("----------------------------"); // TODO remove
 					clone.checkStructure();
 				}
 			}

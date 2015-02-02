@@ -273,8 +273,8 @@ public class BtreePage<k extends Comparable<k>> {
 		if (!isLeave()) {
 			System.arraycopy(offspringPages, initialPosition,
 					offspringPages, initialPosition - displacement,
-					size - initialPosition+1);
-			for (int i = initialPosition-displacement; i < size - initialPosition+1; i++) {
+					size - initialPosition + 1);
+			for (int i = initialPosition - displacement; i < size - initialPosition + 1; i++) {
 				offspringPages[i].parentPosition = i;
 			}
 			for (int i = size - displacement + 1; i <= size; i++) {
@@ -316,7 +316,7 @@ public class BtreePage<k extends Comparable<k>> {
 			// remove the element from the page
 			System.arraycopy(nodes, pos + 1, nodes, pos, size - pos);
 			nodes[size] = null; // just to avoid future problems
-			if (size < (nodes.length * 2 / 3)) {
+			if (size < (nodes.length * 2 / 3) && parentPage != null) {
 				performPostRemovingOperations();
 			}
 		} else {
@@ -364,9 +364,7 @@ public class BtreePage<k extends Comparable<k>> {
 	}
 
 	private void splitRoot(int objectPosition, k object, BtreePage<k> page) {
-		if (parentPage != null && size != nodes.length) {
-			throw new RuntimeException();
-		}
+		assert parentPage == null || size == nodes.length;
 		int nodesFirstPage = (nodes.length + 1) / 2;
 		int nodesSecondPage = nodes.length / 2;
 		BtreePage<k> left = resourcesFactory.getResource();
@@ -769,7 +767,9 @@ public class BtreePage<k extends Comparable<k>> {
 				offspringPages[middlePagePosition].size +
 				offspringPages[middlePagePosition + 1].size + 1 <= nodes.length * 2) {
 			merge(middlePagePosition);
-			performPostRemovingOperations();
+			if (parentPage != null) {
+				performPostRemovingOperations();
+			}
 		} else {
 			int minNodes = nodes.length * 2 / 3;
 			// rotate to left until everything is ok
@@ -790,8 +790,8 @@ public class BtreePage<k extends Comparable<k>> {
 	}
 
 	private void balanceTwoPagesRoot() {
-		if (offspringPages[0].size + offspringPages[1].size < nodes.length) {
-			mergeRoot();
+		if (offspringPages[0].size + offspringPages[1].size + 1 <= nodes.length) {
+			mergeTwoPagesRoot();
 		} else {
 			int minNodes = nodes.length * 2 / 3;
 			if (offspringPages[0].size < minNodes) {
@@ -802,10 +802,21 @@ public class BtreePage<k extends Comparable<k>> {
 		}
 	}
 
+	private void balanceThreePagesRoot() {
+		if (offspringPages[0].size + offspringPages[1].size + offspringPages[2].size + 2
+				<= nodes.length) {
+			merge(1);
+		} else {
+			balanceThreePages(1);
+		}
+	}
+
 	private void performPostRemovingOperations() {
-		if (parentPage.parentPage == null && parentPage.size < 3) {
+		if (parentPage.parentPage == null && parentPage.size == 1) {
 			// special case parent page is root and could merge it self
 			parentPage.balanceTwoPagesRoot();
+		} else if (parentPage.parentPage == null && parentPage.size == 2) {
+			parentPage.balanceThreePagesRoot();
 		} else if (parentPosition == 0) {
 			// first page in parent
 			parentPage.balanceThreePages(1);
@@ -818,26 +829,26 @@ public class BtreePage<k extends Comparable<k>> {
 		}
 	}
 
-	private void mergeRoot() {
+	private void mergeTwoPagesRoot() {
 		BtreePage<k> left = offspringPages[0];
 		BtreePage<k> right = offspringPages[1];
-		if (size != 1 || left.size + right.size + 1 > nodes.length) {
-			throw new RuntimeException();
-		}
-		System.arraycopy(left.nodes, 0, nodes, 0, left.size);
+		assert size == 1 && left.size + right.size + 1 <= nodes.length;
 		nodes[left.size] = nodes[0];
+		System.arraycopy(left.nodes, 0, nodes, 0, left.size);
 		System.arraycopy(right.nodes, 0, nodes, left.size + 1, right.size);
+		size = left.size + right.size + 1;
 
 		if (!left.isLeave()) {
 			System.arraycopy(left.offspringPages, 0, offspringPages, 0, left.size + 1);
-			System.arraycopy(right.offspringPages, 0,
-					offspringPages, left.size + 1,
+			System.arraycopy(right.offspringPages, 0, offspringPages, left.size + 1,
 					right.size + 1);
-			for (int i = 0; i < size + 1; i++) {
+			for (int i = 0; i <= size; i++) {
 				offspringPages[i].setParentPage(this, i);
 			}
+		}else{
+			offspringPages[0] = null;
+			offspringPages[1] = null;
 		}
-		size = left.size + right.size + 1;
 		clear(left);
 		clear(right);
 	}
@@ -847,9 +858,7 @@ public class BtreePage<k extends Comparable<k>> {
 		BtreePage<k> middle = offspringPages[middlePagePos];
 		BtreePage<k> right = offspringPages[middlePagePos + 1];
 		int sumSizes = left.size + middle.size + right.size + 1;
-		if (sumSizes > nodes.length * 2) {
-			throw new RuntimeException();
-		}
+		assert sumSizes <= nodes.length * 2;
 		int leftNodes = nodes.length - left.size - 1;
 		int rightNodes = middle.size - leftNodes;
 		left.nodes[left.size] = nodes[middlePagePos - 1];
@@ -862,8 +871,8 @@ public class BtreePage<k extends Comparable<k>> {
 
 		if (!middle.isLeave()) {
 			System.arraycopy(middle.offspringPages, 0,
-					left.offspringPages, left.size -leftNodes,
-					leftNodes+1);
+					left.offspringPages, left.size - leftNodes,
+					leftNodes + 1);
 			right.offspringPages[1] = right.offspringPages[0]; // not done in shift right
 			System.arraycopy(middle.offspringPages, leftNodes + 1,
 					right.offspringPages, 0,
@@ -876,6 +885,7 @@ public class BtreePage<k extends Comparable<k>> {
 			}
 		}
 
+		offspringPages[middlePagePos] = left;
 		shiftLeft(middlePagePos, 1);
 		clear(middle);
 	}
@@ -889,20 +899,33 @@ public class BtreePage<k extends Comparable<k>> {
 	protected void checkIntegrity() {
 		if (parentPage != null) {
 			if (parentPage.offspringPages[parentPosition] != this) {
-				throw new RuntimeException();
+				throw new RuntimeException("parent page of an offspring is not this");
 			}
-		}
-		if (offspringPages[0] != null || offspringPages[1] != null) {
-			for (int i = 0; i <= size; i++) {
-				if (offspringPages[i].parentPage != this) {
-					throw new RuntimeException();
-				} else {
-					offspringPages[i].checkIntegrity();
+			if (parentPage.parentPage == null) {
+				if (size < nodes.length / 2 - 1) {
+					throw new RuntimeException("wrong minimum size");
+				}
+			} else {
+				if (size < nodes.length * 2 / 3) {
+					throw new RuntimeException("wrong minimum size");
 				}
 			}
+		}
+		if (offspringPages[0] != null || offspringPages[1] != null || offspringPages[2] != null) {
 			for (int i = 0; i < size; i++) {
 				if (nodes[i] == null) {
 					throw new RuntimeException();
+				}
+			}
+			for (int i = 0; i <= size; i++) {
+				if (offspringPages[i] == null) {
+					throw new RuntimeException("offspring page is null");
+				} else if (offspringPages[i].parentPage != this) {
+					throw new RuntimeException("offspring parent page is not this");
+				} else if (offspringPages[i].size == 0) {
+					throw new RuntimeException("offspring page is empty");
+				} else {
+					offspringPages[i].checkIntegrity();
 				}
 			}
 		}
