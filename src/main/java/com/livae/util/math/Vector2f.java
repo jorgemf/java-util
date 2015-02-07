@@ -163,7 +163,7 @@ public class Vector2f implements Vector {
 	}
 
 	@Override
-	public final Vector clone(){
+	public final Vector clone() {
 		return new Vector2f(this);
 	}
 }

@@ -81,7 +81,7 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
 		root.clear();
 	}
 
-	public String getDebugString(){
+	public String getDebugString() {
 		return root.getDebugString();
 	}
 

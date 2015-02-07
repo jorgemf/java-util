@@ -56,11 +56,11 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
 			root = createResource();
 			root.init(null,
 					new Vector3f(cubPos.x - growingRate,
-								cubPos.y - growingRate,
-								cubPos.z - growingRate),
+							cubPos.y - growingRate,
+							cubPos.z - growingRate),
 					new Vector3f(cubPos.x + growingRate,
-								cubPos.y + growingRate,
-								cubPos.z + growingRate));
+							cubPos.y + growingRate,
+							cubPos.z + growingRate));
 		} else {
 			while (!root.contains(boundingCuboid)) {
 				OctreeNode oldRoot = root;
@@ -82,11 +82,11 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
 						(numberNode & OctreeNode.Z_BIT) > 0 ? oldMaxPoint.z : oldMinPoint.z);
 				root.init(null,
 						new Vector3f(midPoint.x - growingRate,
-									midPoint.y - growingRate,
-									midPoint.z - growingRate),
+								midPoint.y - growingRate,
+								midPoint.z - growingRate),
 						new Vector3f(midPoint.x + growingRate,
-									midPoint.y + growingRate,
-									midPoint.z + growingRate));
+								midPoint.y + growingRate,
+								midPoint.z + growingRate));
 				root.getNodes()[numberNode] = oldRoot;
 			}
 		}

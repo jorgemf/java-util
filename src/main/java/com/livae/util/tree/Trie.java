@@ -109,8 +109,8 @@ public class Trie<k> {
 
 	private void visitPreOrder(TrieVisitor<k> visitor, TrieNode node) {
 		visitor.visit(eventNamesVector.get(node.getKeyEvent()),
-					node.getDepth(),
-					node.getChildren().size());
+				node.getDepth(),
+				node.getChildren().size());
 		for (TrieNode n : node.getChildren()) {
 			visitPreOrder(visitor, n);
 		}
@@ -127,8 +127,8 @@ public class Trie<k> {
 			visitPostOrder(visitor, n);
 		}
 		visitor.visit(eventNamesVector.get(node.getKeyEvent()),
-					node.getDepth(),
-					node.getChildren().size());
+				node.getDepth(),
+				node.getChildren().size());
 	}
 
 	public void visitBreadth(TrieVisitor<k> visitor) {

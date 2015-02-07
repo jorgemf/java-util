@@ -189,7 +189,7 @@ public class AstarTree implements BtreeVisitor<State> {
 					for (i = 0; i < heuristicsLength; i++) {
 						if (heuristicsArray[i] < bestHeuristic
 								|| (heuristicsArray[i] == bestHeuristic
-									&& current.cost < bestState.cost)) {
+								&& current.cost < bestState.cost)) {
 							if (bestState != null) {
 								this.statesFactory.releaseResource(bestState);
 							}

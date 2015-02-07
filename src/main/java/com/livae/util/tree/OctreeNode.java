@@ -37,7 +37,7 @@ public class OctreeNode<k extends Intersectable>
 		for (int i = 0; i < nodes.length; i++) {
 			nodes[i] = null;
 		}
-		radius = (float)max.distanceEuclidean(min) / 2;
+		radius = (float) max.distanceEuclidean(min) / 2;
 	}
 
 	public List<k> getObjects() {

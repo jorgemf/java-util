@@ -144,14 +144,14 @@ public class Frustum {
 				frustum[plane][2] * point.z + frustum[plane][3];
 		double b = frustum[plane][0] * frustum[plane][0] + frustum[plane][1] * frustum[plane][1] +
 				frustum[plane][2] * frustum[plane][2];
-		return (float) Math.sqrt(a/b);
+		return (float) Math.sqrt(a / b);
 	}
 
 	// culling using mask for previous calculated points and the diagonal more parallel to the
 	// normal of the plane in order to only use two points (n- and p-vertices see Optimized view
 	// frustum culling algorithms for bounding boxes, 199, ulf assarsson and tomas moller
 	/*
-    private CONTAINS frustumPlanesContainsAABB(Vector3f[] points, CONTAINS[][] mask){
+	private CONTAINS frustumPlanesContainsAABB(Vector3f[] points, CONTAINS[][] mask){
 		boolean intersec = false;
 		int nvert;
 		int pvert;

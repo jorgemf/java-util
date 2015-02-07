@@ -34,37 +34,6 @@ public class BtreeTest {
 		}
 	}
 
-	private class TreeVisitor implements BtreeVisitor<Integer> {
-
-		private Integer previousItem;
-
-		private List<Integer[]> btreeList;
-
-		public TreeVisitor(List<Integer[]> btreeList) {
-			this.btreeList = btreeList;
-		}
-
-		public void visit(Integer object, int deep) {
-			btreeList.add(new Integer[]{object, deep});
-			if (previousItem != null) {
-				assertTrue(previousItem < object);
-			}
-			previousItem = object;
-		}
-	}
-
-	private static class BtreePrinterVisitor implements BtreeVisitor<Integer> {
-
-		public static final BtreePrinterVisitor instance = new BtreePrinterVisitor();
-
-		public void visit(final Integer object, final int deep) {
-			for (int i = 0; i < deep; i++) {
-				System.out.print("  ");
-			}
-			System.out.println(object);
-		}
-	}
-
 	@Test
 	public void testAddRemove() throws Exception {
 		for (int nodesPerPage = 3; nodesPerPage < 7; nodesPerPage++) {
@@ -85,7 +54,17 @@ public class BtreeTest {
 			for (int i = 0; i < totalNodes; i++) {
 				Btree<Integer> clone = btree.clone();
 				for (int j = 0; j < totalNodes; j++) {
+					if (i == 18 && j == 0) {
+						System.out.println(clone.getDebugString());
+						System.out.println("removing: " + (i + j) % totalNodes);
+					}
+//					if (i >= 18) {
+//						System.out.println(i + "  " + j);
+//					}
 					clone.remove((i + j) % totalNodes);
+					if (i == 18 && j == 0) {
+						System.out.println(clone.getDebugString());
+					}
 					clone.checkStructure();
 				}
 			}
@@ -100,6 +79,37 @@ public class BtreeTest {
 				clone.add(i + 0.5d);
 				clone.checkStructure();
 			}
+		}
+	}
+
+	private static class BtreePrinterVisitor implements BtreeVisitor<Integer> {
+
+		public static final BtreePrinterVisitor instance = new BtreePrinterVisitor();
+
+		public void visit(final Integer object, final int deep) {
+			for (int i = 0; i < deep; i++) {
+				System.out.print("  ");
+			}
+			System.out.println(object);
+		}
+	}
+
+	private class TreeVisitor implements BtreeVisitor<Integer> {
+
+		private Integer previousItem;
+
+		private List<Integer[]> btreeList;
+
+		public TreeVisitor(List<Integer[]> btreeList) {
+			this.btreeList = btreeList;
+		}
+
+		public void visit(Integer object, int deep) {
+			btreeList.add(new Integer[]{object, deep});
+			if (previousItem != null) {
+				assertTrue(previousItem < object);
+			}
+			previousItem = object;
 		}
 	}
 

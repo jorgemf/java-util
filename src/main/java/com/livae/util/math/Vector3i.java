@@ -223,7 +223,7 @@ public class Vector3i implements Vector {
 	}
 
 	@Override
-	public final Vector clone(){
+	public final Vector clone() {
 		return new Vector3i(this);
 	}
 }

@@ -1,7 +1,8 @@
 package com.livae.util.math;
 
 /**
- * A Quaternion class, it is a representation of 3D rotations which avoid artifacts when operate with them.
+ * A Quaternion class, it is a representation of 3D rotations which avoid artifacts when operate
+ * with them.
  *
  * @link http://content.gpwiki.org/index.php/OpenGL:Tutorials:Using_Quaternions_to_represent_rotation
  */
@@ -115,7 +116,7 @@ public class Quaternion {
 
 	//http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 	/*
-    public float getXAngleRadians(){
+	public float getXAngleRadians(){
 		return (float)Math.atan2(2*(w*x+y*z), 1-2*(x*x+y*y));
 	}
 	
@@ -239,8 +240,8 @@ public class Quaternion {
 	}
 
 	/**
-	 * Set the angle rotation between two vectors. Use with caution, returns the fastest direction of rotation. If u=-v
-	 * the rotation is returned in z axis.
+	 * Set the angle rotation between two vectors. Use with caution, returns the fastest direction
+	 * of rotation. If u=-v the rotation is returned in z axis.
 	 *
 	 * @link http://stackoverflow.com/questions/1171849/finding-quaternion-representing-the-rotation-from-one-vector-to-another
 	 */
@@ -260,7 +261,7 @@ public class Quaternion {
 			z = 1;
 			w = 0;
 		} else {
-			w = (float)(lengths + dot);
+			w = (float) (lengths + dot);
 			final Vector3f auxVector = new Vector3f();
 			auxVector.cross(v, u);
 			x = auxVector.x;

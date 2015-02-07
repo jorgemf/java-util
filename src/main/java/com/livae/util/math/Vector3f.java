@@ -3,7 +3,7 @@ package com.livae.util.math;
 /**
  * Vector with 3 floats
  */
-public class Vector3f implements Vector{
+public class Vector3f implements Vector {
 
 	public float x;
 
@@ -23,7 +23,7 @@ public class Vector3f implements Vector{
 		this.z = coordinates[2];
 	}
 
-	public Vector3f(final float x,final  float y,final  float z) {
+	public Vector3f(final float x, final float y, final float z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -65,7 +65,7 @@ public class Vector3f implements Vector{
 		return this;
 	}
 
-	public final Vector3f sub(final Vector3f v,final  Vector3f w) {
+	public final Vector3f sub(final Vector3f v, final Vector3f w) {
 		this.x = v.x - w.x;
 		this.y = v.y - w.y;
 		this.z = v.z - w.z;
@@ -247,7 +247,7 @@ public class Vector3f implements Vector{
 	}
 
 	@Override
-	public final Vector clone(){
+	public final Vector clone() {
 		return new Vector3f(this);
 	}
 }

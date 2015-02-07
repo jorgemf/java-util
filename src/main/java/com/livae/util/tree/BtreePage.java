@@ -266,7 +266,7 @@ public class BtreePage<k extends Comparable<k>> {
 
 	private void shiftLeft(int initialPosition, int displacement) {
 		System.arraycopy(nodes, initialPosition, nodes, initialPosition - displacement,
-				size - displacement);
+				size - initialPosition);
 		for (int i = size - displacement; i < size; i++) {
 			nodes[i] = null; // safety
 		}
@@ -274,7 +274,7 @@ public class BtreePage<k extends Comparable<k>> {
 			System.arraycopy(offspringPages, initialPosition,
 					offspringPages, initialPosition - displacement,
 					size - initialPosition + 1);
-			for (int i = initialPosition - displacement; i < size - initialPosition + 1; i++) {
+			for (int i = initialPosition - displacement; i < size - displacement + 1; i++) {
 				offspringPages[i].parentPosition = i;
 			}
 			for (int i = size - displacement + 1; i <= size; i++) {
@@ -290,7 +290,7 @@ public class BtreePage<k extends Comparable<k>> {
 
 	private boolean remove(int initialSearchPosition, k object) {
 		int pos = initialSearchPosition;
-		if (nodes[pos] == object) {
+		if (pos < size && nodes[pos] == object) {
 			removeFromThisPage(pos);
 			return true;
 		}
@@ -817,15 +817,24 @@ public class BtreePage<k extends Comparable<k>> {
 			parentPage.balanceTwoPagesRoot();
 		} else if (parentPage.parentPage == null && parentPage.size == 2) {
 			parentPage.balanceThreePagesRoot();
-		} else if (parentPosition == 0) {
-			// first page in parent
-			parentPage.balanceThreePages(1);
-		} else if (parentPosition == parentPage.size) {
-			// last page in parent
-			parentPage.balanceThreePages(parentPosition - 1);
 		} else {
-			// middle page in parent
-			parentPage.balanceThreePages(parentPosition);
+			if (parentPage.size == 1 && parentPage.parentPage.parentPage == null) {
+				if (parentPage.parentPosition == 0) {
+					parentPage.parentPage.rotateLeft(0);
+				} else {
+					parentPage.parentPage.rotateRight(parentPage.parentPosition);
+				}
+			}
+			if (parentPosition == 0) {
+				// first page in parent
+				parentPage.balanceThreePages(1);
+			} else if (parentPosition == parentPage.size) {
+				// last page in parent
+				parentPage.balanceThreePages(parentPosition - 1);
+			} else {
+				// middle page in parent
+				parentPage.balanceThreePages(parentPosition);
+			}
 		}
 	}
 
@@ -845,7 +854,7 @@ public class BtreePage<k extends Comparable<k>> {
 			for (int i = 0; i <= size; i++) {
 				offspringPages[i].setParentPage(this, i);
 			}
-		}else{
+		} else {
 			offspringPages[0] = null;
 			offspringPages[1] = null;
 		}
@@ -866,7 +875,7 @@ public class BtreePage<k extends Comparable<k>> {
 		left.size += leftNodes + 1;
 		right.shiftRight(0, rightNodes);
 		right.nodes[rightNodes - 1] = nodes[middlePagePos];
-		System.arraycopy(middle.nodes, leftNodes + 2, right.nodes, 0, rightNodes - 1);
+		System.arraycopy(middle.nodes, leftNodes + 1, right.nodes, 0, rightNodes - 1);
 		nodes[middlePagePos] = middle.nodes[leftNodes];
 
 		if (!middle.isLeave()) {
@@ -911,12 +920,12 @@ public class BtreePage<k extends Comparable<k>> {
 				}
 			}
 		}
-		if (offspringPages[0] != null || offspringPages[1] != null || offspringPages[2] != null) {
-			for (int i = 0; i < size; i++) {
-				if (nodes[i] == null) {
-					throw new RuntimeException();
-				}
+		for (int i = 0; i < size; i++) {
+			if (nodes[i] == null) {
+				throw new RuntimeException();
 			}
+		}
+		if (offspringPages[0] != null || offspringPages[1] != null || offspringPages[2] != null) {
 			for (int i = 0; i <= size; i++) {
 				if (offspringPages[i] == null) {
 					throw new RuntimeException("offspring page is null");
@@ -974,7 +983,10 @@ public class BtreePage<k extends Comparable<k>> {
 			while (sb.length() < charactersAdded) {
 				sb.append(' ');
 			}
-			String objectString = object.toString() + " ";
+			String objectString = "null ";
+			if (object != null) {
+				objectString = object.toString() + " ";
+			}
 			sb.append(objectString);
 			charactersAdded += objectString.length();
 		}
