@@ -97,18 +97,6 @@ public class Vector3i implements Vector {
 		return Math.abs(dx) + Math.abs(dy) + Math.abs(dz);
 	}
 
-	public String toString() {
-		return "[x:" + x + ",y:" + y + ",z:" + z + "]";
-	}
-
-	public final double length() {
-		return Math.sqrt(x * x + y * y + z * z);
-	}
-
-	public final double length2() {
-		return x * x + y * y + z * z;
-	}
-
 	public final Vector3i cross(final Vector3i w) {
 		int x = this.y * w.z - this.z * w.y;
 		int y = w.x * this.z - w.z * this.x;
@@ -137,7 +125,7 @@ public class Vector3i implements Vector {
 	public final Vector add(final Vector v) {
 		if (!(v instanceof Vector3i)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.add((Vector3i) v);
 	}
@@ -145,7 +133,7 @@ public class Vector3i implements Vector {
 	public final Vector add(final Vector v1, final Vector v2) {
 		if (!(v1 instanceof Vector3i && v2 instanceof Vector3i)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.add((Vector3i) v1, (Vector3i) v2);
 	}
@@ -153,7 +141,7 @@ public class Vector3i implements Vector {
 	public final Vector sub(final Vector v) {
 		if (!(v instanceof Vector3i)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.sub((Vector3i) v);
 	}
@@ -161,7 +149,7 @@ public class Vector3i implements Vector {
 	public final Vector sub(final Vector v1, final Vector v2) {
 		if (!(v1 instanceof Vector3i && v2 instanceof Vector3i)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.sub((Vector3i) v1, (Vector3i) v2);
 	}
@@ -169,7 +157,7 @@ public class Vector3i implements Vector {
 	public final double distanceEuclidean(final Vector point) {
 		if (!(point instanceof Vector3i)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.distanceEuclidean((Vector3i) point);
 	}
@@ -177,7 +165,7 @@ public class Vector3i implements Vector {
 	public final double distanceEuclidean2(final Vector point) {
 		if (!(point instanceof Vector3i)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.distanceEuclidean2((Vector3i) point);
 	}
@@ -185,7 +173,7 @@ public class Vector3i implements Vector {
 	public final double distanceManhattan(final Vector point) {
 		if (!(point instanceof Vector3i)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.distanceManhattan((Vector3i) point);
 	}
@@ -193,7 +181,7 @@ public class Vector3i implements Vector {
 	public final Vector cross(final Vector v) {
 		if (!(v instanceof Vector3i)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.cross((Vector3i) v);
 	}
@@ -201,7 +189,7 @@ public class Vector3i implements Vector {
 	public final Vector cross(final Vector v, final Vector w) {
 		if (!(v instanceof Vector3i && w instanceof Vector3i)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.cross((Vector3i) v, (Vector3i) w);
 	}
@@ -209,7 +197,7 @@ public class Vector3i implements Vector {
 	public final double dot(final Vector v) {
 		if (!(v instanceof Vector3i)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.dot((Vector3i) v);
 	}
@@ -222,8 +210,20 @@ public class Vector3i implements Vector {
 		throw new UnsupportedOperationException();
 	}
 
+	public final double length() {
+		return Math.sqrt(x * x + y * y + z * z);
+	}
+
+	public final double length2() {
+		return x * x + y * y + z * z;
+	}
+
 	@Override
 	public final Vector clone() {
 		return new Vector3i(this);
+	}
+
+	public String toString() {
+		return "[x:" + x + ",y:" + y + ",z:" + z + "]";
 	}
 }

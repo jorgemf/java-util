@@ -9,12 +9,19 @@ package com.livae.util.math;
 public class Quaternion {
 
 	private final static float TOLERANCE = 0.00001f;
+
 	private final static float PIOVER180 = (float) (Math.PI / 180);
+
 	private float x;
+
 	private float y;
+
 	private float z;
+
 	private float w;
+
 	private float[] matrix;
+
 	private boolean updateMatrix;
 
 	/**
@@ -27,7 +34,8 @@ public class Quaternion {
 	/**
 	 * Copy constructor
 	 *
-	 * @param q other quaternion
+	 * @param q
+	 *  other quaternion
 	 */
 	public Quaternion(Quaternion q) {
 		this(q.x, q.y, q.z, q.w);
@@ -164,7 +172,6 @@ public class Quaternion {
 		normalise();
 		updateMatrix = true;
 	}
-
 
 	/**
 	 * Returns a rotation matrix which represents the quaternion

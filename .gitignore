@@ -9,6 +9,7 @@
 hs_err_pid*
 
 # intellij idea
-.idea/
+.idea/*
+!.idea/codeStyleSettings.xml
 target/
 *.iml

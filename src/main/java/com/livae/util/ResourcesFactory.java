@@ -5,7 +5,8 @@ package com.livae.util;
  * is to prevent the garbage collector to run as the objects are created and destroyed very often,
  * so they are kept in memory an reused when needed.
  *
- * @param <k> Type of resource to be create
+ * @param <k>
+ *  Type of resource to be create
  */
 public abstract class ResourcesFactory<k> {
 

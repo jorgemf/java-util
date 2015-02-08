@@ -68,10 +68,6 @@ public class Vector2f implements Vector {
 		return Math.abs(dx) + Math.abs(dy);
 	}
 
-	public final String toString() {
-		return "[x:" + x + ",y:" + y + "]";
-	}
-
 	public final boolean equals(final Vector v) {
 		return v instanceof Vector2f && this.equals((Vector2f) v);
 	}
@@ -79,7 +75,7 @@ public class Vector2f implements Vector {
 	public final Vector add(final Vector v) {
 		if (!(v instanceof Vector2f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.add((Vector2f) v);
 	}
@@ -87,7 +83,7 @@ public class Vector2f implements Vector {
 	public final Vector add(final Vector v1, final Vector v2) {
 		if (!(v1 instanceof Vector2f && v2 instanceof Vector2f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.add((Vector2f) v1, (Vector2f) v2);
 	}
@@ -95,7 +91,7 @@ public class Vector2f implements Vector {
 	public final Vector sub(final Vector v) {
 		if (!(v instanceof Vector2f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.sub((Vector2f) v);
 	}
@@ -103,7 +99,7 @@ public class Vector2f implements Vector {
 	public final Vector sub(final Vector v1, final Vector v2) {
 		if (!(v1 instanceof Vector2f && v2 instanceof Vector2f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.sub((Vector2f) v1, (Vector2f) v2);
 	}
@@ -111,7 +107,7 @@ public class Vector2f implements Vector {
 	public final double distanceEuclidean(final Vector point) {
 		if (!(point instanceof Vector2f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.distanceEuclidean((Vector2f) point);
 	}
@@ -119,7 +115,7 @@ public class Vector2f implements Vector {
 	public final double distanceEuclidean2(final Vector point) {
 		if (!(point instanceof Vector2f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.distanceEuclidean2((Vector2f) point);
 	}
@@ -127,7 +123,7 @@ public class Vector2f implements Vector {
 	public final double distanceManhattan(final Vector point) {
 		if (!(point instanceof Vector2f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.distanceManhattan((Vector2f) point);
 	}
@@ -165,5 +161,9 @@ public class Vector2f implements Vector {
 	@Override
 	public final Vector clone() {
 		return new Vector2f(this);
+	}
+
+	public final String toString() {
+		return "[x:" + x + ",y:" + y + "]";
 	}
 }

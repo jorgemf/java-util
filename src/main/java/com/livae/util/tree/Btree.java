@@ -5,9 +5,16 @@ import com.livae.util.ResourcesFactory;
 public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k>> {
 
 	private static final int NODES_PER_PAGE = 6;
+
 	private long size;
+
 	private BtreePage<k> root;
+
 	private int nodesPerPage;
+
+	private BtreeVisitor orderVisitor;
+
+	private Comparable orderVisitorPrevious;
 
 	public Btree() {
 		this(NODES_PER_PAGE);
@@ -20,7 +27,6 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
 		this.nodesPerPage = nodesPerPage;
 		this.root = getResource();
 		this.size = 0;
-		//noinspection unchecked
 	}
 
 	private Btree(Btree<k> treeToClone) {
@@ -70,6 +76,22 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
 
 	public void checkStructure() {
 		root.checkIntegrity();
+		if (orderVisitor == null) {
+			orderVisitor = new BtreeVisitor<Comparable>() {
+
+				@Override
+				public void visit(final Comparable object, final int deep) {
+					if (orderVisitorPrevious != null &&
+					    orderVisitorPrevious.compareTo(object) > 0) {
+						throw new RuntimeException("Wrong order: " + orderVisitorPrevious + " < " +
+						                           object);
+					}
+					orderVisitorPrevious = object;
+				}
+			};
+		}
+		orderVisitorPrevious = null;
+		visitInOrder(orderVisitor);
 	}
 
 	@Override
@@ -84,6 +106,5 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
 	public String getDebugString() {
 		return root.getDebugString();
 	}
-
 
 }

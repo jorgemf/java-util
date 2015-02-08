@@ -9,6 +9,7 @@ public class AxisAlignedBoundingCuboid {
 	private Vector3f dimensions;
 
 	private Vector3f minPoint;
+
 	private Vector3f maxPoint;
 
 	public AxisAlignedBoundingCuboid(Vector3f dimensions) {
@@ -19,21 +20,17 @@ public class AxisAlignedBoundingCuboid {
 		this(dimensions.x, dimensions.y, dimensions.z, position.x, position.y, position.z);
 	}
 
-	public AxisAlignedBoundingCuboid(float dimenX, float dimenY, float dimenZ,
-	                                 float posX, float posY, float posZ) {
+	public AxisAlignedBoundingCuboid(float dimenX, float dimenY, float dimenZ, float posX,
+	                                 float posY, float posZ) {
 		if (dimenX < 0 || dimenY < 0 || dimenZ < 0) {
 			throw new RuntimeException("Dimensions should be positive and greater than 0");
 		}
 		dimensions = new Vector3f(dimenX, dimenY, dimenZ);
 		position = new Vector3f(posX, posY, posZ);
-		minPoint = new Vector3f(
-				position.x - dimensions.x / 2,
-				position.y - dimensions.y / 2,
-				position.z - dimensions.z / 2);
-		maxPoint = new Vector3f(
-				position.x + dimensions.x / 2,
-				position.y + dimensions.y / 2,
-				position.z + dimensions.z / 2);
+		minPoint = new Vector3f(position.x - dimensions.x / 2, position.y - dimensions.y / 2,
+		                        position.z - dimensions.z / 2);
+		maxPoint = new Vector3f(position.x + dimensions.x / 2, position.y + dimensions.y / 2,
+		                        position.z + dimensions.z / 2);
 	}
 
 	public static AxisAlignedBoundingCuboid computeBoundingCuboid(float[] points) {
@@ -44,7 +41,9 @@ public class AxisAlignedBoundingCuboid {
 		float maxZ = points[2];
 		float minZ = points[2];
 		int size = points.length / 3;
-		for (int i = 1; i < size; i++) {
+		for (int i = 1;
+		     i < size;
+		     i++) {
 			if (points[i * 3] < minX) {
 				minX = points[i * 3];
 			} else if (points[i * 3] > maxX) {
@@ -74,14 +73,8 @@ public class AxisAlignedBoundingCuboid {
 		position.set(sphere.getCentre());
 		float radius = sphere.getRadius();
 		dimensions.set(radius, radius, radius);
-		minPoint.set(
-				position.x - radius / 2,
-				position.y - radius / 2,
-				position.z - radius / 2);
-		maxPoint.set(
-				position.x + radius / 2,
-				position.y + radius / 2,
-				position.z + radius / 2);
+		minPoint.set(position.x - radius / 2, position.y - radius / 2, position.z - radius / 2);
+		maxPoint.set(position.x + radius / 2, position.y + radius / 2, position.z + radius / 2);
 	}
 
 	public void updateBounds(Cuboid cuboid) {
@@ -89,7 +82,9 @@ public class AxisAlignedBoundingCuboid {
 		minPoint.set(points[0]);
 		maxPoint.set(points[0]);
 		int size = points.length;
-		for (int i = 1; i < size; i++) {
+		for (int i = 1;
+		     i < size;
+		     i++) {
 			if (points[i].x < minPoint.x) {
 				minPoint.x = points[i].x;
 			} else if (points[i].x > maxPoint.x) {
@@ -113,14 +108,9 @@ public class AxisAlignedBoundingCuboid {
 	public void setMinMaxPoint(Vector3f minPoint, Vector3f maxPoint) {
 		minPoint.set(minPoint);
 		maxPoint.set(maxPoint);
-		dimensions.set(
-				maxPoint.x - minPoint.x,
-				maxPoint.y - minPoint.y,
-				maxPoint.z - minPoint.z);
-		position.set(
-				(maxPoint.x + minPoint.x) / 2,
-				(maxPoint.y + minPoint.y) / 2,
-				(maxPoint.z + minPoint.z) / 2);
+		dimensions.set(maxPoint.x - minPoint.x, maxPoint.y - minPoint.y, maxPoint.z - minPoint.z);
+		position.set((maxPoint.x + minPoint.x) / 2, (maxPoint.y + minPoint.y) / 2,
+		             (maxPoint.z + minPoint.z) / 2);
 
 	}
 

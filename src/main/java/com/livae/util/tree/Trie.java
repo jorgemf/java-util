@@ -1,6 +1,13 @@
 package com.livae.util.tree;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.TreeMap;
+import java.util.Vector;
 
 public class Trie<k> {
 
@@ -108,9 +115,8 @@ public class Trie<k> {
 	}
 
 	private void visitPreOrder(TrieVisitor<k> visitor, TrieNode node) {
-		visitor.visit(eventNamesVector.get(node.getKeyEvent()),
-				node.getDepth(),
-				node.getChildren().size());
+		visitor.visit(eventNamesVector.get(node.getKeyEvent()), node.getDepth(),
+		              node.getChildren().size());
 		for (TrieNode n : node.getChildren()) {
 			visitPreOrder(visitor, n);
 		}
@@ -126,9 +132,8 @@ public class Trie<k> {
 		for (TrieNode n : node.getChildren()) {
 			visitPostOrder(visitor, n);
 		}
-		visitor.visit(eventNamesVector.get(node.getKeyEvent()),
-				node.getDepth(),
-				node.getChildren().size());
+		visitor.visit(eventNamesVector.get(node.getKeyEvent()), node.getDepth(),
+		              node.getChildren().size());
 	}
 
 	public void visitBreadth(TrieVisitor<k> visitor) {
@@ -163,7 +168,9 @@ public class Trie<k> {
 
 	public void merge(Trie<k> trie) {
 		int[] trieEventsTranslator = new int[trie.eventNamesVector.size()];
-		for (int i = 0; i < trieEventsTranslator.length; i++) {
+		for (int i = 0;
+		     i < trieEventsTranslator.length;
+		     i++) {
 			trieEventsTranslator[0] = getKey(trie.eventNamesVector.get(i));
 		}
 		merge(root, trie.root, trieEventsTranslator);
@@ -193,11 +200,12 @@ public class Trie<k> {
 		return reservedTrie;
 	}
 
-	private void reverse(TrieNode currentNode, Trie<k> reversedTrie, List<TrieNode> reversedSequence) {
+	private void reverse(TrieNode currentNode, Trie<k> reversedTrie,
+	                     List<TrieNode> reversedSequence) {
 		TrieNode reversedCurrentNode = reversedTrie.root;
 		for (TrieNode reversedNode : reversedSequence) {
-			reversedCurrentNode = reversedTrie
-					.getOrCreateChildNode(reversedCurrentNode, reversedNode.keyEvent);
+			reversedCurrentNode = reversedTrie.getOrCreateChildNode(reversedCurrentNode,
+			                                                        reversedNode.keyEvent);
 			reversedCurrentNode.counter += reversedNode.counter;
 		}
 		for (TrieNode node : currentNode.getChildren()) {

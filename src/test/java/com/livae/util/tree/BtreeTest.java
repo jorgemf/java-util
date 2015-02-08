@@ -1,5 +1,6 @@
 package com.livae.util.tree;
 
+import com.livae.util.Tuple;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -13,7 +14,9 @@ public class BtreeTest {
 	@Test
 	public void testClone() throws Exception {
 		Btree<Integer> btree = new Btree<Integer>(3);
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0;
+		     i < 100;
+		     i++) {
 			btree.add(i);
 		}
 		btree.checkStructure();
@@ -26,7 +29,9 @@ public class BtreeTest {
 		clone.visitInOrder(new TreeVisitor(cloneList));
 
 		assertEquals(btreeList.size(), clone.getSize());
-		for (int i = 0; i < btreeList.size(); i++) {
+		for (int i = 0;
+		     i < btreeList.size();
+		     i++) {
 			Integer[] a = btreeList.get(i);
 			Integer[] b = cloneList.get(i);
 			assertEquals(a[0], b[0]);
@@ -36,45 +41,62 @@ public class BtreeTest {
 
 	@Test
 	public void testAddRemove() throws Exception {
-		for (int nodesPerPage = 3; nodesPerPage < 7; nodesPerPage++) {
+		for (int nodesPerPage = 3;
+		     nodesPerPage < 7;
+		     nodesPerPage++) {
 			Btree<Integer> btree = new Btree<Integer>(nodesPerPage);
 			int pagesPerPage = nodesPerPage + 1;
 			int totalNodes = (1 + pagesPerPage + pagesPerPage * pagesPerPage) * nodesPerPage;
 			// test add
-			for (int i = 0; i < totalNodes; i++) {
+			for (int i = 0;
+			     i < totalNodes;
+			     i++) {
 				btree.add(i);
 				btree.checkStructure();
 			}
 			Btree<Integer> btreePlain = new Btree<Integer>(nodesPerPage);
-			for (int i = 0; i < totalNodes; i++) {
+			for (int i = 0;
+			     i < totalNodes;
+			     i++) {
 				btreePlain.add(1);
 				btree.checkStructure();
 			}
 			// test remove
-			for (int i = 0; i < totalNodes; i++) {
+			for (int i = 0;
+			     i < totalNodes;
+			     i++) {
 				Btree<Integer> clone = btree.clone();
-				for (int j = 0; j < totalNodes; j++) {
-					if (i == 18 && j == 0) {
-						System.out.println(clone.getDebugString());
-						System.out.println("removing: " + (i + j) % totalNodes);
-					}
-//					if (i >= 18) {
-//						System.out.println(i + "  " + j);
-//					}
+				for (int j = 0;
+				     j < totalNodes;
+				     j++) {
 					clone.remove((i + j) % totalNodes);
-					if (i == 18 && j == 0) {
-						System.out.println(clone.getDebugString());
-					}
+					clone.checkStructure();
+				}
+			}
+			Btree<Integer> btreeR = new Btree<Integer>(nodesPerPage);
+			for (int i = 0;
+			     i < totalNodes;
+			     i++) {
+				btreeR.add(i);
+				for (int j = 0;
+				     j < i;
+				     j++) {
+					Btree<Integer> clone = btree.clone();
+					clone.remove(j);
 					clone.checkStructure();
 				}
 			}
 			// test split any position and add duplicates
 			Btree<Double> btreeD = new Btree<Double>(nodesPerPage);
-			for (double i = 0; i < totalNodes; i++) {
+			for (double i = 0;
+			     i < totalNodes;
+			     i++) {
 				btreeD.add(i);
 				btreeD.checkStructure();
 			}
-			for (double i = 0; i < totalNodes; i++) {
+			for (double i = 0;
+			     i < totalNodes;
+			     i++) {
 				Btree<Double> clone = btreeD.clone();
 				clone.add(i + 0.5d);
 				clone.checkStructure();
@@ -82,12 +104,31 @@ public class BtreeTest {
 		}
 	}
 
+	private Btree<Integer> createFullTree(int levels, int nodesPerPage) {
+		BtreePage<Integer> page;
+
+	}
+
+	private Tuple<BtreePage<Integer>, Integer> createFullTree(Btree<Integer> kBtree, int levels,
+	                                                          int nodesPerPage, int start) {
+		Integer nextInt = start;
+		BtreePage<Integer> root = new BtreePage<>(nodesPerPage, kBtree);
+		if (levels == 1) {
+
+		} else {
+
+		}
+		return new Tuple(root, nextInt);
+	}
+
 	private static class BtreePrinterVisitor implements BtreeVisitor<Integer> {
 
 		public static final BtreePrinterVisitor instance = new BtreePrinterVisitor();
 
 		public void visit(final Integer object, final int deep) {
-			for (int i = 0; i < deep; i++) {
+			for (int i = 0;
+			     i < deep;
+			     i++) {
 				System.out.print("  ");
 			}
 			System.out.println(object);
@@ -112,6 +153,5 @@ public class BtreeTest {
 			previousItem = object;
 		}
 	}
-
 
 }

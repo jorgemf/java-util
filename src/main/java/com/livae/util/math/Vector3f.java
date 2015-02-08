@@ -100,24 +100,10 @@ public class Vector3f implements Vector {
 		return x * v.x + y * v.y + z * v.z;
 	}
 
-	public final Vector3f normalize() {
-		float norm = (1.0f / (float) Math.sqrt(x * x + y * y + z * z));
-		this.x *= norm;
-		this.y *= norm;
-		this.z *= norm;
-		return this;
-	}
-
 	public final Vector3f scale(final float s) {
 		this.x *= s;
 		this.y *= s;
 		this.z *= s;
-		return this;
-	}
-
-	public final Vector scale(final double value) {
-		this.x = (float) (this.x * value);
-		this.y = (float) (this.y * value);
 		return this;
 	}
 
@@ -139,18 +125,6 @@ public class Vector3f implements Vector {
 		return Math.abs(dx) + Math.abs(dy) + Math.abs(dz);
 	}
 
-	public String toString() {
-		return "[x:" + x + ",y:" + y + ",z:" + z + "]";
-	}
-
-	public final double length() {
-		return (float) Math.sqrt(x * x + y * y + z * z);
-	}
-
-	public final double length2() {
-		return x * x + y * y + z * z;
-	}
-
 	public final Vector3f rotate(final Quaternion rotation) {
 		float[] matrix = rotation.getMatrix();
 		float newX = matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12];
@@ -169,7 +143,7 @@ public class Vector3f implements Vector {
 	public final Vector add(final Vector v) {
 		if (!(v instanceof Vector3f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.add((Vector3f) v);
 	}
@@ -177,7 +151,7 @@ public class Vector3f implements Vector {
 	public final Vector add(final Vector v1, final Vector v2) {
 		if (!(v1 instanceof Vector3f && v2 instanceof Vector3f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.add((Vector3f) v1, (Vector3f) v2);
 	}
@@ -185,7 +159,7 @@ public class Vector3f implements Vector {
 	public final Vector sub(final Vector v) {
 		if (!(v instanceof Vector3f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.sub((Vector3f) v);
 	}
@@ -193,7 +167,7 @@ public class Vector3f implements Vector {
 	public final Vector sub(final Vector v1, final Vector v2) {
 		if (!(v1 instanceof Vector3f && v2 instanceof Vector3f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.sub((Vector3f) v1, (Vector3f) v2);
 	}
@@ -201,7 +175,7 @@ public class Vector3f implements Vector {
 	public final double distanceEuclidean(final Vector point) {
 		if (!(point instanceof Vector3f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.distanceEuclidean((Vector3f) point);
 	}
@@ -209,7 +183,7 @@ public class Vector3f implements Vector {
 	public final double distanceEuclidean2(final Vector point) {
 		if (!(point instanceof Vector3f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.distanceEuclidean2((Vector3f) point);
 	}
@@ -217,7 +191,7 @@ public class Vector3f implements Vector {
 	public final double distanceManhattan(final Vector point) {
 		if (!(point instanceof Vector3f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.distanceManhattan((Vector3f) point);
 	}
@@ -225,7 +199,7 @@ public class Vector3f implements Vector {
 	public final Vector cross(final Vector v) {
 		if (!(v instanceof Vector3f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.cross((Vector3f) v);
 	}
@@ -233,7 +207,7 @@ public class Vector3f implements Vector {
 	public final Vector cross(final Vector v, final Vector w) {
 		if (!(v instanceof Vector3f && w instanceof Vector3f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.cross((Vector3f) v, (Vector3f) w);
 	}
@@ -241,13 +215,39 @@ public class Vector3f implements Vector {
 	public final double dot(final Vector v) {
 		if (!(v instanceof Vector3f)) {
 			throw new UnsupportedOperationException("Only " + this.getClass().getName() +
-					" vectors supported");
+			                                        " vectors supported");
 		}
 		return this.dot((Vector3f) v);
+	}
+
+	public final Vector3f normalize() {
+		float norm = (1.0f / (float) Math.sqrt(x * x + y * y + z * z));
+		this.x *= norm;
+		this.y *= norm;
+		this.z *= norm;
+		return this;
+	}
+
+	public final Vector scale(final double value) {
+		this.x = (float) (this.x * value);
+		this.y = (float) (this.y * value);
+		return this;
+	}
+
+	public final double length() {
+		return (float) Math.sqrt(x * x + y * y + z * z);
+	}
+
+	public final double length2() {
+		return x * x + y * y + z * z;
 	}
 
 	@Override
 	public final Vector clone() {
 		return new Vector3f(this);
+	}
+
+	public String toString() {
+		return "[x:" + x + ",y:" + y + ",z:" + z + "]";
 	}
 }

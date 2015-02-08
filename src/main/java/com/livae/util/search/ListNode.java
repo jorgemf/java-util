@@ -25,7 +25,9 @@ class ListNode {
 		int[] heuristic = state.heuristic;
 		int cost = state.cost;
 		int size = values.length;
-		for (int i = 0; i < size; i++) {
+		for (int i = 0;
+		     i < size;
+		     i++) {
 			values[i] = cost + heuristic[i];
 		}
 	}
