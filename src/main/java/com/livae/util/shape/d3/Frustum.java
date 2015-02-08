@@ -74,9 +74,7 @@ public class Frustum {
 			}
 		} else {
 			float distance;
-			for (int p = 0;
-			     p < 6;
-			     p++) {
+			for (int p = 0; p < 6; p++) {
 				distance = frustum[p][0] * center.x + frustum[p][1] * center.y +
 				           frustum[p][2] * center.z + frustum[p][3];
 				if (distance <= -radius) {
@@ -102,9 +100,7 @@ public class Frustum {
 		float pvertexZ;
 		int nvertice;
 		int pvertice;
-		for (int p = 0;
-		     p < 6;
-		     p++) {
+		for (int p = 0; p < 6; p++) {
 			nvertice = nvertices[p];
 			nvertexX = (nvertice & OctreeNode.X_BIT) > 0 ? maxPoint.x : minPoint.x;
 			nvertexY = (nvertice & OctreeNode.Y_BIT) > 0 ? maxPoint.y : minPoint.y;
@@ -132,13 +128,9 @@ public class Frustum {
 	private CONTAINS containsCuboid(Vector3f[] points) {
 		int pointsInside = 0;
 		int planes;
-		for (int i = 0;
-		     i < 8;
-		     i++) {
+		for (int i = 0; i < 8; i++) {
 			planes = 0;
-			for (int p = 0;
-			     p < 6;
-			     p++) {
+			for (int p = 0; p < 6; p++) {
 				if (frustum[p][0] * points[i].x + frustum[p][1] * points[i].y +
 				    frustum[p][2] * points[i].z + frustum[p][3] > 0) {
 					planes++;
@@ -305,9 +297,7 @@ public class Frustum {
 		float[] f;
 		float dot, aux;
 		int size = frustum.length;
-		for (int i = 0;
-		     i < size;
-		     i++) {
+		for (int i = 0; i < size; i++) {
 			// 8 diagonals
 			// TODO bear in mind the nodes direction
 			dot = 0;

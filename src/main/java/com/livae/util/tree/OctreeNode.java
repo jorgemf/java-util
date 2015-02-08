@@ -39,9 +39,7 @@ public class OctreeNode<k extends Intersectable> extends AxisAlignedBoundingCubo
 		this.parent = parent;
 		setMinMaxPoint(min, max);
 		objects.clear();
-		for (int i = 0;
-		     i < nodes.length;
-		     i++) {
+		for (int i = 0; i < nodes.length; i++) {
 			nodes[i] = null;
 		}
 		radius = (float) max.distanceEuclidean(min) / 2;

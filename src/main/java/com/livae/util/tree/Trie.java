@@ -168,9 +168,7 @@ public class Trie<k> {
 
 	public void merge(Trie<k> trie) {
 		int[] trieEventsTranslator = new int[trie.eventNamesVector.size()];
-		for (int i = 0;
-		     i < trieEventsTranslator.length;
-		     i++) {
+		for (int i = 0; i < trieEventsTranslator.length; i++) {
 			trieEventsTranslator[0] = getKey(trie.eventNamesVector.get(i));
 		}
 		merge(root, trie.root, trieEventsTranslator);

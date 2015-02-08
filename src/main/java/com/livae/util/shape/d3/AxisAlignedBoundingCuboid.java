@@ -41,9 +41,7 @@ public class AxisAlignedBoundingCuboid {
 		float maxZ = points[2];
 		float minZ = points[2];
 		int size = points.length / 3;
-		for (int i = 1;
-		     i < size;
-		     i++) {
+		for (int i = 1; i < size; i++) {
 			if (points[i * 3] < minX) {
 				minX = points[i * 3];
 			} else if (points[i * 3] > maxX) {
@@ -82,9 +80,7 @@ public class AxisAlignedBoundingCuboid {
 		minPoint.set(points[0]);
 		maxPoint.set(points[0]);
 		int size = points.length;
-		for (int i = 1;
-		     i < size;
-		     i++) {
+		for (int i = 1; i < size; i++) {
 			if (points[i].x < minPoint.x) {
 				minPoint.x = points[i].x;
 			} else if (points[i].x > maxPoint.x) {

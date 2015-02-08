@@ -23,9 +23,7 @@ class List extends ResourcesFactory<ListNode> {
 		while (node != null) {
 			next = node.next[0];
 			size = node.next.length;
-			for (int i = 0;
-			     i < size;
-			     i++) {
+			for (int i = 0; i < size; i++) {
 				node.next[i] = null;
 				node.previous[i] = null;
 				node.values[i] = -1;
@@ -34,9 +32,7 @@ class List extends ResourcesFactory<ListNode> {
 			node = next;
 		}
 		size = first.length;
-		for (int i = 0;
-		     i < size;
-		     i++) {
+		for (int i = 0; i < size; i++) {
 			first[i] = null;
 		}
 		size = 0;
@@ -61,9 +57,7 @@ class List extends ResourcesFactory<ListNode> {
 		ListNode aux;
 		boolean removed = false;
 		int s = first.length;
-		for (int i = 0;
-		     i < s;
-		     i++) {
+		for (int i = 0; i < s; i++) {
 			aux = first[i];
 			if (aux == node) {
 				first[i] = node.next[i];
@@ -87,9 +81,7 @@ class List extends ResourcesFactory<ListNode> {
 		if (removed) {
 			size--;
 			s = node.next.length;
-			for (int i = 0;
-			     i < s;
-			     i++) {
+			for (int i = 0; i < s; i++) {
 				node.next[i] = null;
 				node.previous[i] = null;
 				node.values[i] = -1;
@@ -101,9 +93,7 @@ class List extends ResourcesFactory<ListNode> {
 	protected State[] getFirst() {
 		State[] states = new State[first.length];
 		int s = first.length;
-		for (int i = 0;
-		     i < s;
-		     i++) {
+		for (int i = 0; i < s; i++) {
 			if (first[i] != null) {
 				states[i] = first[i].state;
 				remove(first[i]);
@@ -117,9 +107,7 @@ class List extends ResourcesFactory<ListNode> {
 	protected State[] getLast() {
 		State[] states = new State[first.length];
 		int s = first.length;
-		for (int i = 0;
-		     i < s;
-		     i++) {
+		for (int i = 0; i < s; i++) {
 			if (first[i] != null) {
 				ListNode node = first[i];
 				while (node.next[i] != null) {
@@ -143,9 +131,7 @@ class List extends ResourcesFactory<ListNode> {
 		ListNode auxNext;
 		int value;
 		int s = first.length;
-		for (int i = 0;
-		     i < s;
-		     i++) {
+		for (int i = 0; i < s; i++) {
 			aux = first[i];
 			value = node.values[i];
 			if (aux == null) {
@@ -181,9 +167,7 @@ class List extends ResourcesFactory<ListNode> {
 		ListNode aux;
 		ListNode next;
 		int s = first.length;
-		for (int i = 0;
-		     i < s;
-		     i++) {
+		for (int i = 0; i < s; i++) {
 			current = list.first[i];
 			if (current != null) {
 				currentNext = current.next[i];

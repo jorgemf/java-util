@@ -40,9 +40,7 @@ public class BtreePage<k extends Comparable<k>> {
 		System.arraycopy(pageToClone.nodes, 0, nodes, 0, nodes.length);
 		//noinspection unchecked
 		offspringPages = (BtreePage<k>[]) new BtreePage[pageToClone.offspringPages.length];
-		for (int i = 0;
-		     i < offspringPages.length;
-		     i++) {
+		for (int i = 0; i < offspringPages.length; i++) {
 			if (pageToClone.offspringPages[i] != null) {
 				offspringPages[i] = pageToClone.offspringPages[i].clone(this, resourcesFactory);
 			}
@@ -55,9 +53,7 @@ public class BtreePage<k extends Comparable<k>> {
 	}
 
 	public void visitInOrder(BtreeVisitor<k> visitor, int deep) {
-		for (int i = 0;
-		     i < size;
-		     i++) {
+		for (int i = 0; i < size; i++) {
 			if (offspringPages[i] != null) {
 				offspringPages[i].visitInOrder(visitor, deep + 1);
 			}
@@ -203,9 +199,7 @@ public class BtreePage<k extends Comparable<k>> {
 						if (position != 0) {
 							// make a gap
 							System.arraycopy(offspringPages, 1, offspringPages, 0, position);
-							for (int i = 0;
-							     i < position;
-							     i++) {
+							for (int i = 0; i < position; i++) {
 								offspringPages[i].parentPosition = i;
 							}
 						}
@@ -252,22 +246,16 @@ public class BtreePage<k extends Comparable<k>> {
 	private void shiftRight(int initialPosition, int displacement) {
 		System.arraycopy(nodes, initialPosition, nodes, initialPosition + displacement,
 		                 size - initialPosition);
-		for (int i = initialPosition;
-		     i < initialPosition + displacement;
-		     i++) {
+		for (int i = initialPosition; i < initialPosition + displacement; i++) {
 			nodes[i] = null;
 		}
 		if (!isLeave()) {
 			System.arraycopy(offspringPages, initialPosition + 1, offspringPages,
 			                 initialPosition + 1 + displacement, size - initialPosition);
-			for (int i = initialPosition + 1;
-			     i < initialPosition + 1 + displacement;
-			     i++) {
+			for (int i = initialPosition + 1; i < initialPosition + 1 + displacement; i++) {
 				offspringPages[i] = null;
 			}
-			for (int i = initialPosition + 1 + displacement;
-			     i < size + 1 + displacement;
-			     i++) {
+			for (int i = initialPosition + 1 + displacement; i < size + 1 + displacement; i++) {
 				offspringPages[i].parentPosition = i;
 			}
 		}
@@ -277,22 +265,16 @@ public class BtreePage<k extends Comparable<k>> {
 	private void shiftLeft(int initialPosition, int displacement) {
 		System.arraycopy(nodes, initialPosition, nodes, initialPosition - displacement,
 		                 size - initialPosition);
-		for (int i = size - displacement;
-		     i < size;
-		     i++) {
+		for (int i = size - displacement; i < size; i++) {
 			nodes[i] = null; // safety
 		}
 		if (!isLeave()) {
 			System.arraycopy(offspringPages, initialPosition, offspringPages,
 			                 initialPosition - displacement, size - initialPosition + 1);
-			for (int i = initialPosition - displacement;
-			     i < size - displacement + 1;
-			     i++) {
+			for (int i = initialPosition - displacement; i < size - displacement + 1; i++) {
 				offspringPages[i].parentPosition = i;
 			}
-			for (int i = size - displacement + 1;
-			     i <= size;
-			     i++) {
+			for (int i = size - displacement + 1; i <= size; i++) {
 				offspringPages[i] = null;
 			}
 		}
@@ -468,15 +450,11 @@ public class BtreePage<k extends Comparable<k>> {
 		}
 		if (!isLeave) {
 			BtreePage<k>[] leftPages = left.offspringPages;
-			for (int i = 0;
-			     i < left.size + 1;
-			     i++) {
+			for (int i = 0; i < left.size + 1; i++) {
 				leftPages[i].setParentPage(left, i);
 			}
 			BtreePage<k>[] rightPages = right.offspringPages;
-			for (int i = 0;
-			     i < right.size + 1;
-			     i++) {
+			for (int i = 0; i < right.size + 1; i++) {
 				rightPages[i].setParentPage(right, i);
 			}
 		}
@@ -516,9 +494,7 @@ public class BtreePage<k extends Comparable<k>> {
 			}
 
 			// left
-			for (int i = nodesFirstPage - 1;
-			     i < leftPage.size;
-			     i++) {
+			for (int i = nodesFirstPage - 1; i < leftPage.size; i++) {
 				leftPage.nodes[i] = null;
 				leftPage.offspringPages[i + 1] = null;
 			}
@@ -552,9 +528,7 @@ public class BtreePage<k extends Comparable<k>> {
 			}
 
 			// left
-			for (int i = nodesFirstPage;
-			     i < leftPage.size;
-			     i++) {
+			for (int i = nodesFirstPage; i < leftPage.size; i++) {
 				leftPage.nodes[i] = null;
 				leftPage.offspringPages[i + 1] = null;
 			}
@@ -637,9 +611,7 @@ public class BtreePage<k extends Comparable<k>> {
 			}
 
 			// left
-			for (int i = nodesFirstPage;
-			     i < leftPage.size;
-			     i++) {
+			for (int i = nodesFirstPage; i < leftPage.size; i++) {
 				leftPage.nodes[i] = null;
 				leftPage.offspringPages[i + 1] = null;
 			}
@@ -674,9 +646,7 @@ public class BtreePage<k extends Comparable<k>> {
 			}
 
 			// left
-			for (int i = nodesFirstPage;
-			     i < leftPage.size;
-			     i++) {
+			for (int i = nodesFirstPage; i < leftPage.size; i++) {
 				leftPage.nodes[i] = null;
 				leftPage.offspringPages[i + 1] = null;
 			}
@@ -711,9 +681,7 @@ public class BtreePage<k extends Comparable<k>> {
 			}
 
 			// left
-			for (int i = nodesFirstPage;
-			     i < leftPage.size;
-			     i++) {
+			for (int i = nodesFirstPage; i < leftPage.size; i++) {
 				leftPage.nodes[i] = null;
 				leftPage.offspringPages[i + 1] = null;
 			}
@@ -735,16 +703,12 @@ public class BtreePage<k extends Comparable<k>> {
 				System.arraycopy(rightPage.offspringPages, shiftSize + rightPos + 1,
 				                 rightPage.offspringPages, rightPos + 2,
 				                 rightPage.size - shiftSize - rightPos);
-				for (int i = 0;
-				     i <= nodesThirdPage;
-				     i++) {
+				for (int i = 0; i <= nodesThirdPage; i++) {
 					rightPage.offspringPages[i].setParentPage(rightPage, i);
 				}
 			}
 
-			for (int i = nodesThirdPage;
-			     i < rightPage.size;
-			     i++) {
+			for (int i = nodesThirdPage; i < rightPage.size; i++) {
 				rightPage.nodes[i] = null;
 				rightPage.offspringPages[i + 1] = null;
 			}
@@ -753,9 +717,7 @@ public class BtreePage<k extends Comparable<k>> {
 
 		centrePage.size = nodesSecondPage;
 		if (!isLeave) {
-			for (int i = 0;
-			     i < centrePage.size + 1;
-			     i++) {
+			for (int i = 0; i < centrePage.size + 1; i++) {
 				centrePage.offspringPages[i].setParentPage(centrePage, i);
 			}
 		}
@@ -852,9 +814,7 @@ public class BtreePage<k extends Comparable<k>> {
 			System.arraycopy(left.offspringPages, 0, offspringPages, 0, left.size + 1);
 			System
 			 .arraycopy(right.offspringPages, 0, offspringPages, left.size + 1, right.size + 1);
-			for (int i = 0;
-			     i <= size;
-			     i++) {
+			for (int i = 0; i <= size; i++) {
 				offspringPages[i].setParentPage(this, i);
 			}
 		} else {
@@ -891,18 +851,14 @@ public class BtreePage<k extends Comparable<k>> {
 				System
 				 .arraycopy(middle.offspringPages, 0, left.offspringPages, left.size - leftNodes,
 				            leftNodes + 1);
-				for (int i = left.size - leftNodes;
-				     i <= left.size;
-				     i++) {
+				for (int i = left.size - leftNodes; i <= left.size; i++) {
 					left.offspringPages[i].setParentPage(left, i);
 				}
 				if (rightNodes > 0) {
 					right.offspringPages[rightNodes] = right.offspringPages[0]; // not done in shift right
 					System.arraycopy(middle.offspringPages, leftNodes + 1, right.offspringPages, 0,
 					                 rightNodes);
-					for (int i = 0;
-					     i <= rightNodes;
-					     i++) {
+					for (int i = 0; i <= rightNodes; i++) {
 						right.offspringPages[i].setParentPage(right, i);
 					}
 				}
@@ -916,9 +872,7 @@ public class BtreePage<k extends Comparable<k>> {
 				right.offspringPages[rightNodes +
 				                     1] = right.offspringPages[0]; // not done in  shift right
 				System.arraycopy(middle.offspringPages, 0, right.offspringPages, 0, rightNodes + 1);
-				for (int i = 0;
-				     i <= rightNodes + 1;
-				     i++) {
+				for (int i = 0; i <= rightNodes + 1; i++) {
 					right.offspringPages[i].setParentPage(right, i);
 				}
 			}
@@ -950,17 +904,13 @@ public class BtreePage<k extends Comparable<k>> {
 				}
 			}
 		}
-		for (int i = 0;
-		     i < size;
-		     i++) {
+		for (int i = 0; i < size; i++) {
 			if (nodes[i] == null) {
 				throw new RuntimeException();
 			}
 		}
 		if (offspringPages[0] != null || offspringPages[1] != null || offspringPages[2] != null) {
-			for (int i = 0;
-			     i <= size;
-			     i++) {
+			for (int i = 0; i <= size; i++) {
 				if (offspringPages[i] == null) {
 					throw new RuntimeException("offspring page is null");
 				} else if (offspringPages[i].parentPage != this) {
@@ -975,9 +925,7 @@ public class BtreePage<k extends Comparable<k>> {
 	}
 
 	protected void clear(BtreePage<k> page) {
-		for (int i = 0;
-		     i < page.nodes.length;
-		     i++) {
+		for (int i = 0; i < page.nodes.length; i++) {
 			page.nodes[i] = null;
 			page.offspringPages[i] = null;
 		}
@@ -987,14 +935,10 @@ public class BtreePage<k extends Comparable<k>> {
 	}
 
 	protected void clear() {
-		for (int i = 0;
-		     i < size;
-		     i++) {
+		for (int i = 0; i < size; i++) {
 			nodes[i] = null;
 		}
-		for (int i = 0;
-		     i <= size;
-		     i++) {
+		for (int i = 0; i <= size; i++) {
 			if (offspringPages[i] != null) {
 				offspringPages[i].clear();
 				resourcesFactory.releaseResource(offspringPages[i]);

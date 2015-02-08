@@ -193,9 +193,7 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
 	public void clear(OctreeNode node) {
 		OctreeNode[] nodes = node.getNodes();
 		int size = nodes.length;
-		for (int i = 0;
-		     i < size;
-		     i++) {
+		for (int i = 0; i < size; i++) {
 			if (nodes[i] != null) {
 				clear(nodes[i]);
 				nodes[i] = null;
