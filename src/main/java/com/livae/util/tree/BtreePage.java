@@ -194,8 +194,8 @@ public class BtreePage<k extends Comparable<k>> {
 					}
 					if (!leftPage.isLeave()) {
 						leftPage.offspringPages[leftPage.size] = offspringPages[0];
-						leftPage.offspringPages[leftPage.size]
-						 .setParentPage(leftPage, leftPage.size);
+						leftPage.offspringPages[leftPage.size].setParentPage(leftPage,
+						                                                     leftPage.size);
 						if (position != 0) {
 							// make a gap
 							System.arraycopy(offspringPages, 1, offspringPages, 0, position);
@@ -232,8 +232,8 @@ public class BtreePage<k extends Comparable<k>> {
 				} else {
 					if (leftPage != null) {
 						// split with left
-						parentPage
-						 .split(parentPosition - 1, leftPage.size + 1 + position, object, page);
+						parentPage.split(parentPosition - 1, leftPage.size + 1 + position, object,
+						                 page);
 					} else {
 						// split with right page
 						parentPage.split(parentPosition, position, object, page);
@@ -376,8 +376,8 @@ public class BtreePage<k extends Comparable<k>> {
 			System.arraycopy(nodes, 0, left.nodes, 0, objectPosition);
 			left.nodes[objectPosition] = object;
 			int nodesLeftSecondPart = nodesFirstPage - objectPosition - 1;
-			System
-			 .arraycopy(nodes, objectPosition, left.nodes, objectPosition + 1, nodesLeftSecondPart);
+			System.arraycopy(nodes, objectPosition, left.nodes, objectPosition + 1,
+			                 nodesLeftSecondPart);
 			// root
 			nodes[0] = nodes[nodesFirstPage - 1];
 			// right page
@@ -462,266 +462,247 @@ public class BtreePage<k extends Comparable<k>> {
 
 	private void split(int pagePosition, int objectPositionInMergedPage, k object,
 	                   BtreePage<k> page) {
-		BtreePage<k> leftPage = offspringPages[pagePosition];
-		BtreePage<k> rightPage = offspringPages[pagePosition + 1];
+		BtreePage<k> left = offspringPages[pagePosition];
+		BtreePage<k> right = offspringPages[pagePosition + 1];
 		k nodeInsertParent;
-		BtreePage<k> centrePage = resourcesFactory.getResource();
-		int totalSize = leftPage.size + rightPage.size;
+		BtreePage<k> middle = resourcesFactory.getResource();
+		int totalSize = left.size + right.size;
 		int nodesFirstPage = totalSize / 3;
 		int nodesSecondPage = nodesFirstPage;
 		int nodesThirdPage = totalSize - nodesFirstPage * 2;
-		boolean isLeave = leftPage.isLeave();
+		boolean isLeave = left.isLeave();
 
 		if (objectPositionInMergedPage < nodesFirstPage) {
 			// inside left page
-			nodeInsertParent = leftPage.nodes[nodesFirstPage - 1];
-			int nodesFromLeft = leftPage.size - nodesFirstPage;
-			int nodesFromRight = rightPage.size - nodesThirdPage - 1;
+			nodeInsertParent = left.nodes[nodesFirstPage - 1];
+			int nodesFromLeft = left.size - nodesFirstPage;
+			int nodesFromRight = right.size - nodesThirdPage - 1;
 
 			// centre page
-			System
-			 .arraycopy(leftPage.nodes, nodesFirstPage + 1, centrePage.nodes, 0, nodesFromLeft);
-			centrePage.nodes[nodesFromLeft] = nodes[pagePosition];
-			nodes[pagePosition] = rightPage.nodes[nodesFromRight];
-			System
-			 .arraycopy(rightPage.nodes, 0, centrePage.nodes, nodesFromLeft + 1, nodesFromRight);
+			System.arraycopy(left.nodes, nodesFirstPage - 1, middle.nodes, 0, nodesFromLeft);
+			middle.nodes[nodesFromLeft] = nodes[pagePosition];
+			nodes[pagePosition] = right.nodes[nodesFromRight];
+			System.arraycopy(right.nodes, 0, middle.nodes, nodesFromLeft + 1, nodesFromRight);
 			if (!isLeave) {
-				System
-				 .arraycopy(leftPage.offspringPages, nodesFirstPage, centrePage.offspringPages, 0,
-				            nodesFromLeft + 1);
-				System.arraycopy(rightPage.offspringPages, 0, centrePage.offspringPages,
-				                 nodesFromLeft + 1, nodesFromRight + 1);
+				System.arraycopy(left.offspringPages, nodesFirstPage, middle.offspringPages, 0,
+				                 nodesFromLeft + 1);
+				System.arraycopy(right.offspringPages, 0, middle.offspringPages, nodesFromLeft + 1,
+				                 nodesFromRight + 1);
 			}
 
 			// left
-			for (int i = nodesFirstPage - 1; i < leftPage.size; i++) {
-				leftPage.nodes[i] = null;
-				leftPage.offspringPages[i + 1] = null;
+			for (int i = nodesFirstPage - 1; i < left.size; i++) {
+				left.nodes[i] = null;
+				left.offspringPages[i + 1] = null;
 			}
-			leftPage.size = nodesFirstPage - 1;
-			leftPage.insert(objectPositionInMergedPage, object, page);
+			left.size = nodesFirstPage - 1;
+			left.insert(objectPositionInMergedPage, object, page);
 
 			// right
-			rightPage.shiftLeft(nodesFromRight, nodesFromRight);
+			right.shiftLeft(nodesFromRight, nodesFromRight);
 
 		} else if (objectPositionInMergedPage == nodesFirstPage) {
 			// in parent page in left position
 			nodeInsertParent = object;
-			int nodesFromLeft = leftPage.size - nodesFirstPage;
-			int nodesFromRight = rightPage.size - nodesThirdPage - 1;
+			int nodesFromLeft = left.size - nodesFirstPage;
+			int nodesFromRight = right.size - nodesThirdPage - 1;
 
 			// centre page
-			System
-			 .arraycopy(leftPage.nodes, nodesFirstPage + 1, centrePage.nodes, 0, nodesFromLeft);
-			centrePage.nodes[nodesFromLeft] = nodes[pagePosition];
-			nodes[pagePosition] = rightPage.nodes[nodesFromRight];
-			System
-			 .arraycopy(rightPage.nodes, 0, centrePage.nodes, nodesFromLeft + 1, nodesFromRight);
+			System.arraycopy(left.nodes, nodesFirstPage + 1, middle.nodes, 0, nodesFromLeft);
+			middle.nodes[nodesFromLeft] = nodes[pagePosition];
+			nodes[pagePosition] = right.nodes[nodesFromRight];
+			System.arraycopy(right.nodes, 0, middle.nodes, nodesFromLeft + 1, nodesFromRight);
 			if (!isLeave) {
-				centrePage.offspringPages[0] = page;
-				page.setParentPage(centrePage, 0);
-				System
-				 .arraycopy(leftPage.offspringPages, nodesFirstPage + 1, centrePage.offspringPages,
-				            1, nodesFromLeft);
-				System.arraycopy(rightPage.offspringPages, 0, centrePage.offspringPages,
-				                 nodesFromLeft + 1, nodesFromRight + 1);
+				middle.offspringPages[0] = page;
+				page.setParentPage(middle, 0);
+				System.arraycopy(left.offspringPages, nodesFirstPage + 1, middle.offspringPages, 1,
+				                 nodesFromLeft);
+				System.arraycopy(right.offspringPages, 0, middle.offspringPages, nodesFromLeft + 1,
+				                 nodesFromRight + 1);
 			}
 
 			// left
-			for (int i = nodesFirstPage; i < leftPage.size; i++) {
-				leftPage.nodes[i] = null;
-				leftPage.offspringPages[i + 1] = null;
+			for (int i = nodesFirstPage; i < left.size; i++) {
+				left.nodes[i] = null;
+				left.offspringPages[i + 1] = null;
 			}
-			leftPage.size = nodesFirstPage;
+			left.size = nodesFirstPage;
 
 			// right
-			rightPage.shiftLeft(nodesFromRight, nodesFromRight);
+			right.shiftLeft(nodesFromRight, nodesFromRight);
 
 		} else if (objectPositionInMergedPage < nodesFirstPage + 1 + nodesSecondPage) {
 			// inside center page
-			nodeInsertParent = leftPage.nodes[nodesFirstPage];
-			int nodesFromLeft = leftPage.size - nodesFirstPage - 1;
-			int nodesFromRight = rightPage.size - nodesThirdPage;
+			nodeInsertParent = left.nodes[nodesFirstPage];
+			int nodesFromLeft = left.size - nodesFirstPage - 1;
+			int nodesFromRight = right.size - nodesThirdPage;
 
 			// centre page
 			int centerPagePos = objectPositionInMergedPage - nodesFirstPage - 1;
 			if (centerPagePos <= nodesFromLeft) {
 				// inside the left nodes
-				System
-				 .arraycopy(leftPage.nodes, nodesFirstPage + 1, centrePage.nodes, 0, centerPagePos);
-				centrePage.nodes[centerPagePos] = object;
-				System
-				 .arraycopy(leftPage.nodes, nodesFirstPage + 1 + centerPagePos, centrePage.nodes,
-				            centerPagePos + 1, nodesFromLeft - centerPagePos);
-				centrePage.nodes[nodesFromLeft + 1] = nodes[pagePosition];
-				nodes[pagePosition] = rightPage.nodes[nodesFromRight];
-				System.arraycopy(rightPage.nodes, 0, centrePage.nodes, nodesFromLeft + 2,
-				                 nodesFromRight);
+				System.arraycopy(left.nodes, nodesFirstPage + 1, middle.nodes, 0, centerPagePos);
+				middle.nodes[centerPagePos] = object;
+				System.arraycopy(left.nodes, nodesFirstPage + 1 + centerPagePos, middle.nodes,
+				                 centerPagePos + 1, nodesFromLeft - centerPagePos);
+				middle.nodes[nodesFromLeft + 1] = nodes[pagePosition];
+				nodes[pagePosition] = right.nodes[nodesFromRight];
+				System.arraycopy(right.nodes, 0, middle.nodes, nodesFromLeft + 2, nodesFromRight);
 				if (!isLeave) {
-					System.arraycopy(leftPage.offspringPages, nodesFirstPage + 1,
-					                 centrePage.offspringPages, 0, centerPagePos + 1);
-					centrePage.offspringPages[centerPagePos + 1] = page;
-					page.setParentPage(centrePage, centerPagePos + 1);
-					System.arraycopy(leftPage.offspringPages, nodesFirstPage + centerPagePos + 2,
-					                 centrePage.offspringPages, centerPagePos + 2,
+					System.arraycopy(left.offspringPages, nodesFirstPage + 1, middle.offspringPages,
+					                 0, centerPagePos + 1);
+					middle.offspringPages[centerPagePos + 1] = page;
+					page.setParentPage(middle, centerPagePos + 1);
+					System.arraycopy(left.offspringPages, nodesFirstPage + centerPagePos + 2,
+					                 middle.offspringPages, centerPagePos + 2,
 					                 nodesFromLeft - centerPagePos - 1);
-					System.arraycopy(rightPage.offspringPages, 0, centrePage.offspringPages,
+					System.arraycopy(right.offspringPages, 0, middle.offspringPages,
 					                 nodesFromLeft + 2, nodesFromRight + 1);
 				}
 			} else if (centerPagePos == nodesFromLeft + 1) {
 				// after the parent node
-				System
-				 .arraycopy(leftPage.nodes, nodesFirstPage + 1, centrePage.nodes, 0, nodesFromLeft);
-				centrePage.nodes[nodesFromLeft] = nodes[pagePosition];
-				centrePage.nodes[centerPagePos] = object;
-				nodes[pagePosition] = rightPage.nodes[nodesFromRight];
-				System.arraycopy(rightPage.nodes, 0, centrePage.nodes, nodesFromLeft + 2,
-				                 nodesFromRight);
+				System.arraycopy(left.nodes, nodesFirstPage + 1, middle.nodes, 0, nodesFromLeft);
+				middle.nodes[nodesFromLeft] = nodes[pagePosition];
+				middle.nodes[centerPagePos] = object;
+				nodes[pagePosition] = right.nodes[nodesFromRight];
+				System.arraycopy(right.nodes, 0, middle.nodes, nodesFromLeft + 2, nodesFromRight);
 				if (!isLeave) {
-					System.arraycopy(leftPage.offspringPages, nodesFirstPage + 1,
-					                 centrePage.offspringPages, 0, nodesFromLeft + 1);
-					centrePage.offspringPages[centerPagePos + 1] = page;
-					page.setParentPage(centrePage, centerPagePos + 1);
-					System.arraycopy(rightPage.offspringPages, 0, centrePage.offspringPages,
+					System.arraycopy(left.offspringPages, nodesFirstPage + 1, middle.offspringPages,
+					                 0, nodesFromLeft + 1);
+					middle.offspringPages[centerPagePos + 1] = page;
+					page.setParentPage(middle, centerPagePos + 1);
+					System.arraycopy(right.offspringPages, 0, middle.offspringPages,
 					                 nodesFromLeft + 3, nodesFromRight + 1);
 				}
 			} else {
 				// inside the right nodes
-				System
-				 .arraycopy(leftPage.nodes, nodesFirstPage + 1, centrePage.nodes, 0, nodesFromLeft);
-				centrePage.nodes[nodesFromLeft] = nodes[pagePosition];
-				nodes[pagePosition] = rightPage.nodes[nodesFromRight];
+				System.arraycopy(left.nodes, nodesFirstPage + 1, middle.nodes, 0, nodesFromLeft);
+				middle.nodes[nodesFromLeft] = nodes[pagePosition];
+				nodes[pagePosition] = right.nodes[nodesFromRight];
 				int splitRightNodes = centerPagePos - nodesFromLeft - 1;
-				System.arraycopy(rightPage.nodes, 0, centrePage.nodes, nodesFromLeft + 1,
-				                 splitRightNodes);
-				centrePage.nodes[centerPagePos] = object;
-				System.arraycopy(rightPage.nodes, 0, centrePage.nodes, centerPagePos + 1,
+				System.arraycopy(right.nodes, 0, middle.nodes, nodesFromLeft + 1, splitRightNodes);
+				middle.nodes[centerPagePos] = object;
+				System.arraycopy(right.nodes, 0, middle.nodes, centerPagePos + 1,
 				                 nodesFromRight - splitRightNodes);
 				if (!isLeave) {
-					System.arraycopy(leftPage.offspringPages, nodesFirstPage + 1,
-					                 centrePage.offspringPages, 0, nodesFromLeft + 1);
-					System.arraycopy(rightPage.offspringPages, 0, centrePage.offspringPages,
+					System.arraycopy(left.offspringPages, nodesFirstPage + 1, middle.offspringPages,
+					                 0, nodesFromLeft + 1);
+					System.arraycopy(right.offspringPages, 0, middle.offspringPages,
 					                 nodesFromLeft + 2, splitRightNodes + 1);
-					centrePage.offspringPages[centerPagePos + 1] = page;
-					page.setParentPage(centrePage, centerPagePos + 1);
-					System.arraycopy(rightPage.offspringPages, splitRightNodes + 1,
-					                 centrePage.offspringPages, centerPagePos + 2,
+					middle.offspringPages[centerPagePos + 1] = page;
+					page.setParentPage(middle, centerPagePos + 1);
+					System.arraycopy(right.offspringPages, splitRightNodes + 1,
+					                 middle.offspringPages, centerPagePos + 2,
 					                 nodesFromRight - splitRightNodes);
 				}
 			}
 
 			// left
-			for (int i = nodesFirstPage; i < leftPage.size; i++) {
-				leftPage.nodes[i] = null;
-				leftPage.offspringPages[i + 1] = null;
+			for (int i = nodesFirstPage; i < left.size; i++) {
+				left.nodes[i] = null;
+				left.offspringPages[i + 1] = null;
 			}
-			leftPage.size = nodesFirstPage;
+			left.size = nodesFirstPage;
 
 			// right
-			rightPage.shiftLeft(nodesFromRight + 1, nodesFromRight + 1);
+			right.shiftLeft(nodesFromRight + 1, nodesFromRight + 1);
 			if (!isLeave) {
-				rightPage.offspringPages[0] = page;
-				page.setParentPage(rightPage, 0);
+				right.offspringPages[0] = page;
+				page.setParentPage(right, 0);
 			}
 
 		} else if (objectPositionInMergedPage == nodesFirstPage + 1 + nodesSecondPage) {
 			// in parent page in right position
-			nodeInsertParent = leftPage.nodes[nodesFirstPage];
-			int nodesFromLeft = leftPage.size - nodesFirstPage - 1;
-			int nodesFromRight = rightPage.size - nodesThirdPage;
+			nodeInsertParent = left.nodes[nodesFirstPage];
+			int nodesFromLeft = left.size - nodesFirstPage - 1;
+			int nodesFromRight = right.size - nodesThirdPage;
 
 			// centre page
-			System
-			 .arraycopy(leftPage.nodes, nodesFirstPage + 1, centrePage.nodes, 0, nodesFromLeft);
-			centrePage.nodes[nodesFromLeft] = nodes[pagePosition];
+			System.arraycopy(left.nodes, nodesFirstPage + 1, middle.nodes, 0, nodesFromLeft);
+			middle.nodes[nodesFromLeft] = nodes[pagePosition];
 			nodes[pagePosition] = object;
-			System
-			 .arraycopy(rightPage.nodes, 0, centrePage.nodes, nodesFromLeft + 1, nodesFromRight);
+			System.arraycopy(right.nodes, 0, middle.nodes, nodesFromLeft + 1, nodesFromRight);
 			if (!isLeave) {
-				System
-				 .arraycopy(leftPage.offspringPages, nodesFirstPage + 1, centrePage.offspringPages,
-				            0, nodesFromLeft + 1);
-				System.arraycopy(rightPage.offspringPages, 0, centrePage.offspringPages,
-				                 nodesFromLeft + 1, nodesFromRight + 1);
+				System.arraycopy(left.offspringPages, nodesFirstPage + 1, middle.offspringPages, 0,
+				                 nodesFromLeft + 1);
+				System.arraycopy(right.offspringPages, 0, middle.offspringPages, nodesFromLeft + 1,
+				                 nodesFromRight + 1);
 			}
 
 			// left
-			for (int i = nodesFirstPage; i < leftPage.size; i++) {
-				leftPage.nodes[i] = null;
-				leftPage.offspringPages[i + 1] = null;
+			for (int i = nodesFirstPage; i < left.size; i++) {
+				left.nodes[i] = null;
+				left.offspringPages[i + 1] = null;
 			}
-			leftPage.size = nodesFirstPage;
+			left.size = nodesFirstPage;
 
 			// right
-			rightPage.shiftLeft(nodesFromRight + 1, nodesFromRight + 1);
+			right.shiftLeft(nodesFromRight + 1, nodesFromRight + 1);
 			if (!isLeave) {
-				rightPage.offspringPages[0] = page;
-				page.setParentPage(rightPage, 0);
+				right.offspringPages[0] = page;
+				page.setParentPage(right, 0);
 			}
 
 		} else {
 			// inside right page
-			nodeInsertParent = leftPage.nodes[nodesFirstPage];
-			int nodesFromLeft = leftPage.size - nodesFirstPage - 1;
-			int nodesFromRight = rightPage.size - nodesThirdPage;
+			nodeInsertParent = left.nodes[nodesFirstPage];
+			int nodesFromLeft = left.size - nodesFirstPage - 1;
+			int nodesFromRight = right.size - nodesThirdPage;
 
 			// centre page
-			System
-			 .arraycopy(leftPage.nodes, nodesFirstPage + 1, centrePage.nodes, 0, nodesFromLeft);
-			centrePage.nodes[nodesFromLeft] = nodes[pagePosition];
-			nodes[pagePosition] = rightPage.nodes[nodesFromRight];
-			System
-			 .arraycopy(rightPage.nodes, 0, centrePage.nodes, nodesFromLeft + 1, nodesFromRight);
+			System.arraycopy(left.nodes, nodesFirstPage + 1, middle.nodes, 0, nodesFromLeft);
+			middle.nodes[nodesFromLeft] = nodes[pagePosition];
+			nodes[pagePosition] = right.nodes[nodesFromRight];
+			System.arraycopy(right.nodes, 0, middle.nodes, nodesFromLeft + 1, nodesFromRight);
 			if (!isLeave) {
-				System
-				 .arraycopy(leftPage.offspringPages, nodesFirstPage + 1, centrePage.offspringPages,
-				            0, nodesFromLeft + 1);
-				System.arraycopy(rightPage.offspringPages, 0, centrePage.offspringPages,
-				                 nodesFromLeft + 1, nodesFromRight + 1);
+				System.arraycopy(left.offspringPages, nodesFirstPage + 1, middle.offspringPages, 0,
+				                 nodesFromLeft + 1);
+				System.arraycopy(right.offspringPages, 0, middle.offspringPages, nodesFromLeft + 1,
+				                 nodesFromRight + 1);
 			}
 
 			// left
-			for (int i = nodesFirstPage; i < leftPage.size; i++) {
-				leftPage.nodes[i] = null;
-				leftPage.offspringPages[i + 1] = null;
+			for (int i = nodesFirstPage; i < left.size; i++) {
+				left.nodes[i] = null;
+				left.offspringPages[i + 1] = null;
 			}
-			leftPage.size = nodesFirstPage;
+			left.size = nodesFirstPage;
 
 			// right
 			int rightPos = objectPositionInMergedPage - (nodesFirstPage + nodesSecondPage + 2);
 			int shiftSize = nodesFromRight + 1;
 
-			System.arraycopy(rightPage.nodes, shiftSize, rightPage.nodes, 0, rightPos);
-			rightPage.nodes[rightPos] = object;
-			System.arraycopy(rightPage.nodes, shiftSize + rightPos, rightPage.nodes, rightPos + 1,
-			                 rightPage.size - shiftSize - rightPos);
+			System.arraycopy(right.nodes, shiftSize, right.nodes, 0, rightPos);
+			right.nodes[rightPos] = object;
+			System.arraycopy(right.nodes, shiftSize + rightPos, right.nodes, rightPos + 1,
+			                 right.size - shiftSize - rightPos);
 			if (!isLeave) {
-				System.arraycopy(rightPage.offspringPages, shiftSize, rightPage.offspringPages, 0,
+				System.arraycopy(right.offspringPages, shiftSize, right.offspringPages, 0,
 				                 rightPos + 1);
-				rightPage.offspringPages[rightPos + 1] = page;
-				page.setParentPage(rightPage, rightPos + 1);
-				System.arraycopy(rightPage.offspringPages, shiftSize + rightPos + 1,
-				                 rightPage.offspringPages, rightPos + 2,
-				                 rightPage.size - shiftSize - rightPos);
+				right.offspringPages[rightPos + 1] = page;
+				page.setParentPage(right, rightPos + 1);
+				System.arraycopy(right.offspringPages, shiftSize + rightPos + 1,
+				                 right.offspringPages, rightPos + 2,
+				                 right.size - shiftSize - rightPos);
 				for (int i = 0; i <= nodesThirdPage; i++) {
-					rightPage.offspringPages[i].setParentPage(rightPage, i);
+					right.offspringPages[i].setParentPage(right, i);
 				}
 			}
 
-			for (int i = nodesThirdPage; i < rightPage.size; i++) {
-				rightPage.nodes[i] = null;
-				rightPage.offspringPages[i + 1] = null;
+			for (int i = nodesThirdPage; i < right.size; i++) {
+				right.nodes[i] = null;
+				right.offspringPages[i + 1] = null;
 			}
-			rightPage.size = nodesThirdPage;
+			right.size = nodesThirdPage;
 		}
 
-		centrePage.size = nodesSecondPage;
+		middle.size = nodesSecondPage;
 		if (!isLeave) {
-			for (int i = 0; i < centrePage.size + 1; i++) {
-				centrePage.offspringPages[i].setParentPage(centrePage, i);
+			for (int i = 0; i < middle.size + 1; i++) {
+				middle.offspringPages[i].setParentPage(middle, i);
 			}
 		}
-		insert(pagePosition, nodeInsertParent, centrePage);
+		insert(pagePosition, nodeInsertParent, middle);
 	}
 
 	private void balanceThreePages(int middlePagePosition) {
@@ -812,8 +793,8 @@ public class BtreePage<k extends Comparable<k>> {
 
 		if (!left.isLeave()) {
 			System.arraycopy(left.offspringPages, 0, offspringPages, 0, left.size + 1);
-			System
-			 .arraycopy(right.offspringPages, 0, offspringPages, left.size + 1, right.size + 1);
+			System.arraycopy(right.offspringPages, 0, offspringPages, left.size + 1,
+			                 right.size + 1);
 			for (int i = 0; i <= size; i++) {
 				offspringPages[i].setParentPage(this, i);
 			}
@@ -848,9 +829,8 @@ public class BtreePage<k extends Comparable<k>> {
 				nodes[middlePagePos] = middle.nodes[leftNodes];
 			}
 			if (!middle.isLeave()) {
-				System
-				 .arraycopy(middle.offspringPages, 0, left.offspringPages, left.size - leftNodes,
-				            leftNodes + 1);
+				System.arraycopy(middle.offspringPages, 0, left.offspringPages,
+				                 left.size - leftNodes, leftNodes + 1);
 				for (int i = left.size - leftNodes; i <= left.size; i++) {
 					left.offspringPages[i].setParentPage(left, i);
 				}
@@ -947,6 +927,10 @@ public class BtreePage<k extends Comparable<k>> {
 		}
 	}
 
+	protected TestUtils getTestUtils() {
+		return new TestUtils();
+	}
+
 	private class BtreePrinter implements BtreeVisitor<k> {
 
 		private Vector<StringBuilder> stringBuilders;
@@ -984,4 +968,19 @@ public class BtreePage<k extends Comparable<k>> {
 		}
 	}
 
+	class TestUtils {
+
+		public void setNode(BtreePage<k> o, int pos, k object) {
+			o.nodes[pos] = object;
+		}
+
+		public void setOffspringPage(BtreePage<k> o, int pos, BtreePage<k> page) {
+			o.offspringPages[pos] = page;
+			o.offspringPages[pos].setParentPage(o, pos);
+		}
+
+		public void size(BtreePage<k> o, int size) {
+			o.size = size;
+		}
+	}
 }

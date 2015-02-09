@@ -79,26 +79,61 @@ public class BtreeTest {
 				clone.add(i + 0.5d);
 				clone.checkStructure();
 			}
+			// full tree
+			Btree<Integer> fullBtree = createFullTree(3, nodesPerPage);
+			fullBtree.checkStructure();
+			// test add one anywhere
+			for (int i = -1; i < totalNodes; i++) {
+				Btree<Integer> clone = fullBtree.clone();
+				System.out.println(clone.getDebugString());
+				System.out.println("i = " + i);
+				clone.add(i);
+				clone.checkStructure();
+			}
+			// test delete one anywhere
+			for (int i = 0; i < totalNodes; i++) {
+				Btree<Integer> clone = fullBtree.clone();
+				clone.add(i);
+				clone.checkStructure();
+			}
+
 		}
 	}
 
 	private Btree<Integer> createFullTree(int levels, int nodesPerPage) {
-		BtreePage<Integer> page;
-
+		Btree<Integer> tree = new Btree<>(nodesPerPage);
+		Tuple<BtreePage<Integer>, Integer> root = createFullTree(tree, levels, nodesPerPage, 0);
+		tree.getTestUtils().setRoot(tree, root.first, root.second);
+		return tree;
 	}
 
 	private Tuple<BtreePage<Integer>, Integer> createFullTree(Btree<Integer> kBtree, int levels,
 	                                                          int nodesPerPage, int start) {
 		Integer nextInt = start;
 		BtreePage<Integer> root = new BtreePage<>(nodesPerPage, kBtree);
+		BtreePage.TestUtils testUtils = root.getTestUtils();
 		if (levels == 1) {
 			for (int i = 0; i < nodesPerPage; i++) {
-				root.add(nextInt);
+				testUtils.setNode(root, i, nextInt);
+				nextInt++;
 			}
 		} else {
-
+			for (int i = 0; i < nodesPerPage; i++) {
+				Tuple<BtreePage<Integer>, Integer> offSpring = createFullTree(kBtree, levels - 1,
+				                                                              nodesPerPage,
+				                                                              nextInt);
+				testUtils.setOffspringPage(root, i, offSpring.first);
+				nextInt = offSpring.second;
+				testUtils.setNode(root, i, nextInt);
+				nextInt++;
+			}
+			Tuple<BtreePage<Integer>, Integer> offSpring = createFullTree(kBtree, levels - 1,
+			                                                              nodesPerPage, nextInt);
+			testUtils.setOffspringPage(root, nodesPerPage, offSpring.first);
+			nextInt = offSpring.second;
 		}
-		return new Tuple(root, nextInt);
+		testUtils.size(root, nodesPerPage);
+		return new Tuple<>(root, nextInt);
 	}
 
 	private static class BtreePrinterVisitor implements BtreeVisitor<Integer> {

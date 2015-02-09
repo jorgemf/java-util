@@ -9,7 +9,7 @@ public interface Vector {
 	 * Check if this vector and another are equals
 	 *
 	 * @param v
-	 *  The other Vector
+	 *   The other Vector
 	 * @return true if both vectors are the same, false otherwise
 	 */
 	public boolean equals(Vector v);
@@ -18,7 +18,7 @@ public interface Vector {
 	 * Add another vector to this
 	 *
 	 * @param v
-	 *  The other vector
+	 *   The other vector
 	 * @return This vector
 	 */
 	public Vector add(Vector v);
@@ -27,9 +27,9 @@ public interface Vector {
 	 * Add two vectors and put the results in this vector
 	 *
 	 * @param v1
-	 *  First vector to add
+	 *   First vector to add
 	 * @param v2
-	 *  Second vector to add
+	 *   Second vector to add
 	 * @return This vector with the results
 	 */
 	public Vector add(Vector v1, Vector v2);
@@ -38,7 +38,7 @@ public interface Vector {
 	 * Subtracts vector v to this vector
 	 *
 	 * @param v
-	 *  The other vector
+	 *   The other vector
 	 * @return This vector
 	 */
 	public Vector sub(Vector v);
@@ -47,9 +47,9 @@ public interface Vector {
 	 * Subtracts v1 minus v2 and set the value in this vector
 	 *
 	 * @param v1
-	 *  First vector
+	 *   First vector
 	 * @param v2
-	 *  Second vector
+	 *   Second vector
 	 * @return This vector with the results
 	 */
 	public Vector sub(Vector v1, Vector v2);
@@ -59,7 +59,7 @@ public interface Vector {
 	 * space
 	 *
 	 * @param point
-	 *  Point in the space
+	 *   Point in the space
 	 * @return Distance between both points
 	 */
 	public double distanceEuclidean(Vector point);
@@ -68,7 +68,7 @@ public interface Vector {
 	 * Same as Vector#distanceEuclidean but does not make the square root.
 	 *
 	 * @param point
-	 *  Point in the space
+	 *   Point in the space
 	 * @return Distance squared between both points
 	 */
 	public double distanceEuclidean2(Vector point);
@@ -77,7 +77,7 @@ public interface Vector {
 	 * Calculate the manhattan distance between two points
 	 *
 	 * @param point
-	 *  The other poin in the space
+	 *   The other poin in the space
 	 * @return The manhattan distance
 	 */
 	public double distanceManhattan(Vector point);
@@ -86,7 +86,7 @@ public interface Vector {
 	 * Calculate the cross product between this vector and another
 	 *
 	 * @param v
-	 *  The other vector
+	 *   The other vector
 	 * @return This vector with the result of the cross product.
 	 */
 	public Vector cross(Vector v);
@@ -95,9 +95,9 @@ public interface Vector {
 	 * Calculate the cross product between two vectors and store the result in this one.
 	 *
 	 * @param v
-	 *  First vector of the cross product
+	 *   First vector of the cross product
 	 * @param w
-	 *  Second vector of the cross product
+	 *   Second vector of the cross product
 	 * @return This vector with the result
 	 */
 	public Vector cross(Vector v, Vector w);
@@ -106,7 +106,7 @@ public interface Vector {
 	 * Calculate the dot product between this vector and another
 	 *
 	 * @param v
-	 *  The other vector
+	 *   The other vector
 	 * @return The dot product
 	 */
 	public double dot(Vector v);
@@ -123,7 +123,7 @@ public interface Vector {
 	 * constant
 	 *
 	 * @param value
-	 *  Constant to scale the vector
+	 *   Constant to scale the vector
 	 * @return This vector with the result
 	 */
 	public Vector scale(double value);

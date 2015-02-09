@@ -50,25 +50,28 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
 		Vector3f cubPos = boundingCuboid.getPosition();
 		if (root == null) {
 			Vector3f cuboidDimensions = boundingCuboid.getDimensions();
-			float maxDimHalf =
-			 Math.max(cuboidDimensions.x, Math.max(cuboidDimensions.y, cuboidDimensions.z)) / 2;
+			float maxDimHalf = Math.max(cuboidDimensions.x, Math.max(cuboidDimensions.y,
+			                                                         cuboidDimensions.z)) / 2;
 			float growingRate = minimumCellSize;
 			while (maxDimHalf > growingRate) {
 				growingRate *= 2;
 			}
 			root = createResource();
 			root.init(null, new Vector3f(cubPos.x - growingRate, cubPos.y - growingRate,
-			                             cubPos.z - growingRate),
-			          new Vector3f(cubPos.x + growingRate, cubPos.y + growingRate,
-			                       cubPos.z + growingRate));
+			                             cubPos.z - growingRate), new Vector3f(cubPos.x +
+			                                                                   growingRate,
+			                                                                   cubPos.y +
+			                                                                   growingRate,
+			                                                                   cubPos.z +
+			                                                                   growingRate));
 		} else {
 			while (!root.contains(boundingCuboid)) {
 				OctreeNode oldRoot = root;
 				root = createResource();
 				oldRoot.setParent(root);
 				Vector3f oldRootDimensions = oldRoot.getDimensions();
-				float growingRate = Math.max(oldRootDimensions.x,
-				                             Math.max(oldRootDimensions.y, oldRootDimensions.z));
+				float growingRate = Math.max(oldRootDimensions.x, Math.max(oldRootDimensions.y,
+				                                                           oldRootDimensions.z));
 				Vector3f oldRootPos = oldRoot.getCentre();
 				int numberNode = (cubPos.x < oldRootPos.x ? OctreeNode.X_BIT : 0) |
 				                 (cubPos.y < oldRootPos.y ? OctreeNode.Y_BIT : 0) |
@@ -82,9 +85,12 @@ public class Octree<k extends Intersectable> extends ResourcesFactory<OctreeNode
 				                                 (numberNode & OctreeNode.Z_BIT) > 0 ? oldMaxPoint.z
 				                                                                     : oldMinPoint.z);
 				root.init(null, new Vector3f(midPoint.x - growingRate, midPoint.y - growingRate,
-				                             midPoint.z - growingRate),
-				          new Vector3f(midPoint.x + growingRate, midPoint.y + growingRate,
-				                       midPoint.z + growingRate));
+				                             midPoint.z - growingRate), new Vector3f(midPoint.x +
+				                                                                     growingRate,
+				                                                                     midPoint.y +
+				                                                                     growingRate,
+				                                                                     midPoint.z +
+				                                                                     growingRate));
 				root.getNodes()[numberNode] = oldRoot;
 			}
 		}

@@ -35,7 +35,7 @@ public class Quaternion {
 	 * Copy constructor
 	 *
 	 * @param q
-	 *  other quaternion
+	 *   other quaternion
 	 */
 	public Quaternion(Quaternion q) {
 		this(q.x, q.y, q.z, q.w);

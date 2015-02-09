@@ -107,4 +107,16 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
 		return root.getDebugString();
 	}
 
+	protected TestUtils getTestUtils() {
+		return new TestUtils();
+	}
+
+	class TestUtils {
+
+		public void setRoot(Btree<k> o, BtreePage<k> page, int size) {
+			o.root = page;
+			o.size = size;
+		}
+	}
+
 }

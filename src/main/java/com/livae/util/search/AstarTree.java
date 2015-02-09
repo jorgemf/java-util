@@ -237,7 +237,7 @@ public class AstarTree implements BtreeVisitor<State> {
 								for (i = 0; i < heuristicsLength; i++) {
 									t1 = System.nanoTime();
 									offspring.heuristic[i] = heuristics[i]
-									                          .calculateHeuristic(offspring);
+									                           .calculateHeuristic(offspring);
 									t2 = System.nanoTime();
 									timeHeuristic += t2 - t1;
 									timeHeuristics[i] += t2 - t1;
@@ -290,7 +290,7 @@ public class AstarTree implements BtreeVisitor<State> {
 
 	private void printStats() {
 		long timeExecuting =
-		 System.currentTimeMillis() - this.startAlgorithmTime + this.accumulatedTime;
+		  System.currentTimeMillis() - this.startAlgorithmTime + this.accumulatedTime;
 		System.out.println("Time executing: " + timeExecuting + " ms");
 		System.out.println("Visited states: " + visitedStatesNumber);
 		double seconds = timeExecuting / 1000;
@@ -309,8 +309,8 @@ public class AstarTree implements BtreeVisitor<State> {
 		for (int i = 0; i < timeOperators.length; i++) {
 			System.out.println("\t" + this.operations[i].getName() + ":");
 			System.out.println("\t\t time " + timeOperators[i]);
-			System.out
-			 .println("\t\t time per visit " + (timeOperators[i] * 1.0 / visitedStatesNumber));
+			System.out.println("\t\t time per visit " +
+			                   (timeOperators[i] * 1.0 / visitedStatesNumber));
 			System.out.println("\t\t generated states (per visit): " +
 			                   this.generatedStatesOperator[i] + " (" +
 			                   (this.generatedStatesOperator[i] * 1.0 / visitedStatesNumber) + ")");

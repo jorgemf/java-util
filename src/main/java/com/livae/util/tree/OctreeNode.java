@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OctreeNode<k extends Intersectable> extends AxisAlignedBoundingCuboid
- implements Sphere {
+  implements Sphere {
 
 	public static final int X_BIT = 0x4;
 

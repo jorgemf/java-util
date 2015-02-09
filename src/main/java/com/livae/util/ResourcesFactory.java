@@ -6,7 +6,7 @@ package com.livae.util;
  * so they are kept in memory an reused when needed.
  *
  * @param <k>
- *  Type of resource to be create
+ *   Type of resource to be create
  */
 public abstract class ResourcesFactory<k> {
 
