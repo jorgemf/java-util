@@ -81,6 +81,7 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
 
 				@Override
 				public void visit(final Comparable object, final int deep) {
+					//noinspection unchecked
 					if (orderVisitorPrevious != null &&
 					    orderVisitorPrevious.compareTo(object) > 0) {
 						throw new RuntimeException("Wrong order: " + orderVisitorPrevious + " < " +
@@ -91,6 +92,7 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
 			};
 		}
 		orderVisitorPrevious = null;
+		//noinspection unchecked
 		visitInOrder(orderVisitor);
 	}
 

@@ -83,17 +83,19 @@ public class BtreeTest {
 			Btree<Integer> fullBtree = createFullTree(3, nodesPerPage);
 			fullBtree.checkStructure();
 			// test add one anywhere
-			for (int i = -1; i < totalNodes; i++) {
+			for (int i = 0; i <= totalNodes; i++) {
 				Btree<Integer> clone = fullBtree.clone();
 				System.out.println(clone.getDebugString());
-				System.out.println("i = " + i);
-				clone.add(i);
+				System.out.println("i = " + i * 2);
+				clone.add(i * 2);
+				System.out.println(clone.getDebugString());
 				clone.checkStructure();
 			}
 			// test delete one anywhere
 			for (int i = 0; i < totalNodes; i++) {
 				Btree<Integer> clone = fullBtree.clone();
-				clone.add(i);
+				System.out.println("i = " + (i * 2 + 1));
+				clone.remove(i * 2 + 1);
 				clone.checkStructure();
 			}
 
@@ -102,7 +104,7 @@ public class BtreeTest {
 
 	private Btree<Integer> createFullTree(int levels, int nodesPerPage) {
 		Btree<Integer> tree = new Btree<>(nodesPerPage);
-		Tuple<BtreePage<Integer>, Integer> root = createFullTree(tree, levels, nodesPerPage, 0);
+		Tuple<BtreePage<Integer>, Integer> root = createFullTree(tree, levels, nodesPerPage, 1);
 		tree.getTestUtils().setRoot(tree, root.first, root.second);
 		return tree;
 	}
@@ -115,7 +117,7 @@ public class BtreeTest {
 		if (levels == 1) {
 			for (int i = 0; i < nodesPerPage; i++) {
 				testUtils.setNode(root, i, nextInt);
-				nextInt++;
+				nextInt += 2;
 			}
 		} else {
 			for (int i = 0; i < nodesPerPage; i++) {
@@ -125,7 +127,7 @@ public class BtreeTest {
 				testUtils.setOffspringPage(root, i, offSpring.first);
 				nextInt = offSpring.second;
 				testUtils.setNode(root, i, nextInt);
-				nextInt++;
+				nextInt += 2;
 			}
 			Tuple<BtreePage<Integer>, Integer> offSpring = createFullTree(kBtree, levels - 1,
 			                                                              nodesPerPage, nextInt);
