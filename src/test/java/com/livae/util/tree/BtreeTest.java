@@ -38,6 +38,7 @@ public class BtreeTest {
 	@Test
 	public void testAddRemove() throws Exception {
 		for (int nodesPerPage = 3; nodesPerPage < 7; nodesPerPage++) {
+			System.out.println("nodesPerPage = " + nodesPerPage);
 			Btree<Integer> btree = new Btree<Integer>(nodesPerPage);
 			int pagesPerPage = nodesPerPage + 1;
 			int totalNodes = (1 + pagesPerPage + pagesPerPage * pagesPerPage) * nodesPerPage;
@@ -85,20 +86,18 @@ public class BtreeTest {
 			// test add one anywhere
 			for (int i = 0; i <= totalNodes; i++) {
 				Btree<Integer> clone = fullBtree.clone();
-				System.out.println(clone.getDebugString());
-				System.out.println("i = " + i * 2);
+				if (nodesPerPage >= 4) {
+					System.out.println("i = " + i);
+				}
 				clone.add(i * 2);
-				System.out.println(clone.getDebugString());
 				clone.checkStructure();
 			}
 			// test delete one anywhere
 			for (int i = 0; i < totalNodes; i++) {
 				Btree<Integer> clone = fullBtree.clone();
-				System.out.println("i = " + (i * 2 + 1));
 				clone.remove(i * 2 + 1);
 				clone.checkStructure();
 			}
-
 		}
 	}
 
@@ -121,16 +120,15 @@ public class BtreeTest {
 			}
 		} else {
 			for (int i = 0; i < nodesPerPage; i++) {
-				Tuple<BtreePage<Integer>, Integer> offSpring = createFullTree(kBtree, levels - 1,
-				                                                              nodesPerPage,
-				                                                              nextInt);
+				Tuple<BtreePage<Integer>, Integer> offSpring;
+				offSpring = createFullTree(kBtree, levels - 1, nodesPerPage, nextInt);
 				testUtils.setOffspringPage(root, i, offSpring.first);
 				nextInt = offSpring.second;
 				testUtils.setNode(root, i, nextInt);
 				nextInt += 2;
 			}
-			Tuple<BtreePage<Integer>, Integer> offSpring = createFullTree(kBtree, levels - 1,
-			                                                              nodesPerPage, nextInt);
+			Tuple<BtreePage<Integer>, Integer> offSpring;
+			offSpring = createFullTree(kBtree, levels - 1, nodesPerPage, nextInt);
 			testUtils.setOffspringPage(root, nodesPerPage, offSpring.first);
 			nextInt = offSpring.second;
 		}

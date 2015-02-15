@@ -51,11 +51,11 @@ afterEvaluate { project ->
 
                 repository(url: getReleaseRepositoryUrl()) {
                     authentication(userName: getRepositoryUsername(),
-                                    password: getRepositoryPassword())
+                            password: getRepositoryPassword())
                 }
                 snapshotRepository(url: getSnapshotRepositoryUrl()) {
                     authentication(userName: getRepositoryUsername(),
-                                    password: getRepositoryPassword())
+                            password: getRepositoryPassword())
                 }
 
                 pom.project {
