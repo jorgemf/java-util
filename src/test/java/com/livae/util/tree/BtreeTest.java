@@ -86,10 +86,20 @@ public class BtreeTest {
 			// test add one anywhere
 			for (int i = 0; i <= totalNodes; i++) {
 				Btree<Integer> clone = fullBtree.clone();
-				if (nodesPerPage >= 4) {
+				if (nodesPerPage >= 6) {
 					System.out.println("i = " + i);
+					if (i >= 5) {
+						BtreePage.VERBOSE = true;
+					}
+				}
+				if (BtreePage.VERBOSE) {
+					System.out.println("Adding: " + (i * 2));
+					System.out.println(clone.getDebugString());
 				}
 				clone.add(i * 2);
+				if (BtreePage.VERBOSE) {
+					System.out.println(clone.getDebugString());
+				}
 				clone.checkStructure();
 			}
 			// test delete one anywhere
