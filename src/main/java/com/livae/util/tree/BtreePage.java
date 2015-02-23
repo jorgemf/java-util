@@ -6,8 +6,6 @@ import java.util.Vector;
 
 public class BtreePage<k extends Comparable<k>> {
 
-	public static boolean VERBOSE = false; // TODO remove
-
 	private BtreePage<k> parentPage;
 
 	private int parentPosition;
@@ -325,9 +323,6 @@ public class BtreePage<k extends Comparable<k>> {
 	}
 
 	private void rotateRight(int nodePos) {
-		if (VERBOSE) {
-			System.out.println("rotateRight"); // TODO remove
-		}
 		BtreePage<k> leftPage = offspringPages[nodePos];
 		BtreePage<k> rightPage = offspringPages[nodePos + 1];
 		rightPage.shiftRight(0, 1);
@@ -349,9 +344,6 @@ public class BtreePage<k extends Comparable<k>> {
 	}
 
 	private void rotateLeft(int nodePos) {
-		if (VERBOSE) {
-			System.out.println("rotateLeft"); // TODO remove
-		}
 		BtreePage<k> leftPage = offspringPages[nodePos];
 		BtreePage<k> rightPage = offspringPages[nodePos + 1];
 		leftPage.nodes[leftPage.size] = nodes[nodePos];
@@ -368,9 +360,6 @@ public class BtreePage<k extends Comparable<k>> {
 	}
 
 	private void splitRoot(int objectPosition, k object, BtreePage<k> page) {
-		if (VERBOSE) {
-			System.out.println("splitRoot"); // TODO remove
-		}
 		assert parentPage == null || size == nodes.length;
 		int nodesFirstPage = (nodes.length + 1) / 2;
 		int nodesSecondPage = nodes.length / 2;
@@ -472,9 +461,6 @@ public class BtreePage<k extends Comparable<k>> {
 
 	private void split(int pagePosition, int objectPositionInMergedPage, k object,
 	                   BtreePage<k> page) {
-		if (VERBOSE) {
-			System.out.println("split"); // TODO remove
-		}
 		BtreePage<k> left = offspringPages[pagePosition];
 		BtreePage<k> right = offspringPages[pagePosition + 1];
 		k nodeInsertParent;
@@ -521,9 +507,6 @@ public class BtreePage<k extends Comparable<k>> {
 	                              BtreePage<k> page, BtreePage<k> left, BtreePage<k> right,
 	                              BtreePage<k> middle, int nodesFirstPage, int nodesThirdPage,
 	                              boolean isLeave) {
-		if (VERBOSE) {
-			System.out.println("splitNodeInLeftPage"); // TODO remove
-		}
 		k nodeInsertParent;// inside left page
 		nodeInsertParent = left.nodes[nodesFirstPage - 1];
 		int nodesFromLeft = left.size - nodesFirstPage;
@@ -557,9 +540,6 @@ public class BtreePage<k extends Comparable<k>> {
 	private k splitNodeInParentLeft(int pagePosition, k object, BtreePage<k> page,
 	                                BtreePage<k> left, BtreePage<k> right, BtreePage<k> middle,
 	                                int nodesFirstPage, int nodesThirdPage, boolean isLeave) {
-		if (VERBOSE) {
-			System.out.println("splitNodeInParentLeft"); // TODO remove
-		}
 		k nodeInsertParent;// in parent page in left position
 		nodeInsertParent = object;
 		int nodesFromLeft = left.size - nodesFirstPage;
@@ -595,9 +575,6 @@ public class BtreePage<k extends Comparable<k>> {
 	                                BtreePage<k> page, BtreePage<k> left, BtreePage<k> right,
 	                                BtreePage<k> middle, int nodesFirstPage, int nodesThirdPage,
 	                                boolean isLeave) {
-		if (VERBOSE) {
-			System.out.println("splitNodeInCenterPage"); // TODO remove
-		}
 		k nodeInsertParent;// inside center page
 		nodeInsertParent = left.nodes[nodesFirstPage];
 		int nodesFromLeft = left.size - nodesFirstPage - 1;
@@ -606,13 +583,10 @@ public class BtreePage<k extends Comparable<k>> {
 		// centre page
 		int centerPagePos = objectPositionInMergedPage - nodesFirstPage - 1;
 		if (centerPagePos <= nodesFromLeft) {
-			if (VERBOSE) {
-				System.out.println("inside the left nodes"); // TODO remove
-			}
 			// inside the left nodes
 			System.arraycopy(left.nodes, nodesFirstPage, middle.nodes, 0, centerPagePos);
 			middle.nodes[centerPagePos] = object;
-			System.arraycopy(left.nodes, nodesFirstPage + centerPagePos, middle.nodes,
+			System.arraycopy(left.nodes, nodesFirstPage + centerPagePos + 1, middle.nodes,
 			                 centerPagePos + 1, nodesFromLeft - centerPagePos);
 			middle.nodes[nodesFromLeft + 1] = nodes[pagePosition];
 			nodes[pagePosition] = right.nodes[nodesFromRight];
@@ -623,15 +597,11 @@ public class BtreePage<k extends Comparable<k>> {
 				middle.offspringPages[centerPagePos + 1] = page;
 				System.arraycopy(left.offspringPages, nodesFirstPage + centerPagePos + 2,
 				                 middle.offspringPages, centerPagePos + 2,
-				                 nodesFromLeft - centerPagePos - 1);
+				                 nodesFromLeft - centerPagePos);
 				System.arraycopy(right.offspringPages, 0, middle.offspringPages, nodesFromLeft + 2,
 				                 nodesFromRight + 1);
-				right.offspringPages[0] = page;
 			}
 		} else if (centerPagePos == nodesFromLeft + 1) {
-			if (VERBOSE) {
-				System.out.println("after the parent node"); // TODO remove
-			}
 			// after the parent node
 			System.arraycopy(left.nodes, nodesFirstPage + 1, middle.nodes, 0, nodesFromLeft);
 			middle.nodes[nodesFromLeft] = nodes[pagePosition];
@@ -645,13 +615,8 @@ public class BtreePage<k extends Comparable<k>> {
 				middle.offspringPages[centerPagePos + 1] = page;
 				System.arraycopy(right.offspringPages, 1, middle.offspringPages, centerPagePos + 2,
 				                 nodesFromRight);
-				right.offspringPages[0] = right.offspringPages[nodesFromRight];
-				right.offspringPages[0].setParentPage(right, 0);
 			}
 		} else {
-			if (VERBOSE) {
-				System.out.println("inside the right nodes"); // TODO remove
-			}
 			// inside the right nodes
 			System.arraycopy(left.nodes, nodesFirstPage + 1, middle.nodes, 0, nodesFromLeft);
 			middle.nodes[nodesFromLeft] = nodes[pagePosition];
@@ -669,8 +634,6 @@ public class BtreePage<k extends Comparable<k>> {
 				middle.offspringPages[centerPagePos + 1] = page;
 				System.arraycopy(right.offspringPages, splitRightNodes + 1, middle.offspringPages,
 				                 centerPagePos + 2, nodesFromRight - splitRightNodes);
-				right.offspringPages[0] = right.offspringPages[nodesFromRight];
-				right.offspringPages[0].setParentPage(right, 0);
 			}
 		}
 
@@ -682,6 +645,10 @@ public class BtreePage<k extends Comparable<k>> {
 		left.size = nodesFirstPage;
 
 		// right
+		if (!isLeave) {
+			right.offspringPages[0] = right.offspringPages[nodesFromRight];
+			right.offspringPages[0].setParentPage(right, 0);
+		}
 		right.shiftLeft(nodesFromRight + 1, nodesFromRight + 1);
 		return nodeInsertParent;
 	}
@@ -689,9 +656,6 @@ public class BtreePage<k extends Comparable<k>> {
 	private k splitNodeInParentRight(int pagePosition, k object, BtreePage<k> page,
 	                                 BtreePage<k> left, BtreePage<k> right, BtreePage<k> middle,
 	                                 int nodesFirstPage, int nodesThirdPage, boolean isLeave) {
-		if (VERBOSE) {
-			System.out.println("splitNodeInParentRight"); // TODO remove
-		}
 		k nodeInsertParent;// in parent page in right position
 		nodeInsertParent = left.nodes[nodesFirstPage];
 		int nodesFromLeft = left.size - nodesFirstPage - 1;
@@ -729,9 +693,6 @@ public class BtreePage<k extends Comparable<k>> {
 	                               BtreePage<k> page, BtreePage<k> left, BtreePage<k> right,
 	                               BtreePage<k> middle, int nodesFirstPage, int nodesSecondPage,
 	                               int nodesThirdPage, boolean isLeave) {
-		if (VERBOSE) {
-			System.out.println("splitNodeInRightPage"); // TODO remove
-		}
 		k nodeInsertParent;// inside right page
 		nodeInsertParent = left.nodes[nodesFirstPage];
 		int nodesFromLeft = left.size - nodesFirstPage - 1;
@@ -813,9 +774,6 @@ public class BtreePage<k extends Comparable<k>> {
 	}
 
 	private void balanceTwoPagesRoot() {
-		if (VERBOSE) {
-			System.out.println("balanceTwoPagesRoot"); // TODO remove
-		}
 		if (offspringPages[0].size + offspringPages[1].size + 1 <= nodes.length) {
 			mergeTwoPagesRoot();
 		} else {
@@ -829,9 +787,6 @@ public class BtreePage<k extends Comparable<k>> {
 	}
 
 	private void balanceThreePagesRoot() {
-		if (VERBOSE) {
-			System.out.println("balanceThreePagesRoot"); // TODO remove
-		}
 		if (offspringPages[0].size + offspringPages[1].size + offspringPages[2].size + 2 <=
 		    nodes.length) {
 			merge(1);
@@ -868,9 +823,6 @@ public class BtreePage<k extends Comparable<k>> {
 	}
 
 	private void mergeTwoPagesRoot() {
-		if (VERBOSE) {
-			System.out.println("mergeTwoPagesRoot"); // TODO remove
-		}
 		BtreePage<k> left = offspringPages[0];
 		BtreePage<k> right = offspringPages[1];
 		assert size == 1 && left.size + right.size + 1 <= nodes.length;
@@ -895,9 +847,6 @@ public class BtreePage<k extends Comparable<k>> {
 	}
 
 	private void merge(int middlePagePos) {
-		if (VERBOSE) {
-			System.out.println("merge"); // TODO remove
-		}
 		BtreePage<k> left = offspringPages[middlePagePos - 1];
 		BtreePage<k> middle = offspringPages[middlePagePos];
 		BtreePage<k> right = offspringPages[middlePagePos + 1];

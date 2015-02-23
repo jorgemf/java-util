@@ -38,7 +38,6 @@ public class BtreeTest {
 	@Test
 	public void testAddRemove() throws Exception {
 		for (int nodesPerPage = 3; nodesPerPage < 7; nodesPerPage++) {
-			System.out.println("nodesPerPage = " + nodesPerPage);
 			Btree<Integer> btree = new Btree<Integer>(nodesPerPage);
 			int pagesPerPage = nodesPerPage + 1;
 			int totalNodes = (1 + pagesPerPage + pagesPerPage * pagesPerPage) * nodesPerPage;
@@ -86,20 +85,7 @@ public class BtreeTest {
 			// test add one anywhere
 			for (int i = 0; i <= totalNodes; i++) {
 				Btree<Integer> clone = fullBtree.clone();
-				if (nodesPerPage >= 6) {
-					System.out.println("i = " + i);
-					if (i >= 5) {
-						BtreePage.VERBOSE = true;
-					}
-				}
-				if (BtreePage.VERBOSE) {
-					System.out.println("Adding: " + (i * 2));
-					System.out.println(clone.getDebugString());
-				}
 				clone.add(i * 2);
-				if (BtreePage.VERBOSE) {
-					System.out.println(clone.getDebugString());
-				}
 				clone.checkStructure();
 			}
 			// test delete one anywhere
@@ -114,7 +100,7 @@ public class BtreeTest {
 	private Btree<Integer> createFullTree(int levels, int nodesPerPage) {
 		Btree<Integer> tree = new Btree<>(nodesPerPage);
 		Tuple<BtreePage<Integer>, Integer> root = createFullTree(tree, levels, nodesPerPage, 1);
-		tree.getTestUtils().setRoot(tree, root.first, root.second);
+		tree.getTestUtils().setRoot(tree, root.first, root.second / 2);
 		return tree;
 	}
 

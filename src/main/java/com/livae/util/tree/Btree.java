@@ -12,9 +12,7 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
 
 	private int nodesPerPage;
 
-	private BtreeVisitor orderVisitor;
-
-	private Comparable orderVisitorPrevious;
+	private VisitStructure orderVisitor;
 
 	public Btree() {
 		this(NODES_PER_PAGE);
@@ -77,23 +75,17 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
 	public void checkStructure() {
 		root.checkIntegrity();
 		if (orderVisitor == null) {
-			orderVisitor = new BtreeVisitor<Comparable>() {
-
-				@Override
-				public void visit(final Comparable object, final int deep) {
-					//noinspection unchecked
-					if (orderVisitorPrevious != null &&
-					    orderVisitorPrevious.compareTo(object) > 0) {
-						throw new RuntimeException("Wrong order: " + orderVisitorPrevious + " < " +
-						                           object);
-					}
-					orderVisitorPrevious = object;
-				}
-			};
+			orderVisitor = new VisitStructure();
 		}
-		orderVisitorPrevious = null;
+		orderVisitor.orderVisitorPrevious = null;
+		orderVisitor.visited = 0;
 		//noinspection unchecked
-		visitInOrder(orderVisitor);
+		visitInOrder((BtreeVisitor<k>) orderVisitor);
+		if (orderVisitor.visited != size) {
+			System.out.println(getDebugString());
+			throw new RuntimeException("Different nodes than expected visited: " +
+			                           orderVisitor.visited + " != " + size);
+		}
 	}
 
 	@Override
@@ -111,6 +103,24 @@ public class Btree<k extends Comparable<k>> extends ResourcesFactory<BtreePage<k
 
 	protected TestUtils getTestUtils() {
 		return new TestUtils();
+	}
+
+	class VisitStructure implements BtreeVisitor<Comparable> {
+
+		Comparable orderVisitorPrevious;
+
+		int visited;
+
+		@Override
+		public void visit(final Comparable object, final int deep) {
+			//noinspection unchecked
+			if (orderVisitorPrevious != null && orderVisitorPrevious.compareTo(object) > 0) {
+				throw new RuntimeException("Wrong order: " + orderVisitorPrevious + " < " +
+				                           object);
+			}
+			visited++;
+			orderVisitorPrevious = object;
+		}
 	}
 
 	class TestUtils {
