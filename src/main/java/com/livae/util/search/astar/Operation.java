@@ -1,4 +1,4 @@
-package com.livae.util.search;
+package com.livae.util.search.astar;
 
 import com.livae.util.ResourcesFactory;
 
