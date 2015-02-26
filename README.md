@@ -1,14 +1,19 @@
 # livae-java-util
 
-## set of utilities in java, data structures & search algorithms  *(under construction)*
+## set of utilities in java, tree data structures & search algorithms & learning algorithms
+*(under development)*
 
-- data structures:
+- tree data structures:
   - trie
   - b-star (memory based)
   - octree + basic intersection shapes
 - search algorithms
   - a-star (normal and parallel version)
   - genetic algorithm (normal and parallel version)
+  - artificial immune system
+- learning algorithms
+  - neural networks with backpropagation
+  - recurrent neural networks with backpropagation through time
 
 ## License
 
