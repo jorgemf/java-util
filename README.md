@@ -4,16 +4,17 @@
 *(under development)*
 
 - tree data structures:
-  - trie
-  - b-star (memory based)
-  - octree + basic intersection shapes
+  - trie (under testing)
+  - b-star (memory based) (under testing)
+  - octree + basic intersection shapes (under development)
 - search algorithms
-  - a-star (normal and parallel version)
-  - genetic algorithm (normal and parallel version)
-  - artificial immune system
+  - a-star (normal and parallel version) (under testing)
+  - genetic algorithm (normal and parallel version) (planned)
+  - multi-objective genetic algorithm (normal and parallel version) (planned)
+  - artificial immune system (planned)
 - learning algorithms
-  - neural networks with backpropagation
-  - recurrent neural networks with backpropagation through time
+  - neural networks with backpropagation (planned)
+  - recurrent neural networks with backpropagation through time (planned)
 
 ## License
 

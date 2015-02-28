@@ -1,5 +1,8 @@
 package com.livae.util.tree;
 
+import com.livae.util.Tuple;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -115,7 +118,7 @@ public class Trie<k> {
 	}
 
 	private void visitPreOrder(TrieVisitor<k> visitor, TrieNode node) {
-		visitor.visit(eventNamesVector.get(node.getKeyEvent()), node.getDepth(),
+		visitor.visit(eventNamesVector.get(node.getKeyEvent()), node.getCounter(), node.getDepth(),
 		              node.getChildren().size());
 		for (TrieNode n : node.getChildren()) {
 			visitPreOrder(visitor, n);
@@ -132,14 +135,13 @@ public class Trie<k> {
 		for (TrieNode n : node.getChildren()) {
 			visitPostOrder(visitor, n);
 		}
-		visitor.visit(eventNamesVector.get(node.getKeyEvent()), node.getDepth(),
+		visitor.visit(eventNamesVector.get(node.getKeyEvent()), node.getCounter(), node.getDepth(),
 		              node.getChildren().size());
 	}
 
 	public void visitBreadth(TrieVisitor<k> visitor) {
 		Queue<TrieNode> nodesQueue = new LinkedList<TrieNode>();
 		nodesQueue.addAll(root.getChildren());
-		nodesQueue.add(null);
 		TrieNode head;
 		Collection<TrieNode> children;
 		int childrenSize;
@@ -150,7 +152,8 @@ public class Trie<k> {
 			if (childrenSize > 0) {
 				nodesQueue.addAll(children);
 			}
-			visitor.visit(eventNamesVector.get(head.getKeyEvent()), head.getDepth(), childrenSize);
+			visitor.visit(eventNamesVector.get(head.getKeyEvent()), head.getCounter(),
+			              head.getDepth(), childrenSize);
 		}
 	}
 
@@ -213,6 +216,18 @@ public class Trie<k> {
 		}
 	}
 
+	public String getDebugString() {
+		TriePrinter v = new TriePrinter();
+		visitPreOrder(v);
+		return v.getString();
+	}
+
+	public List<List<Tuple<k, Integer>>> getSequences() {
+		SequenceVisitor sequenceVisitor = new SequenceVisitor();
+		visitPreOrder(sequenceVisitor);
+		return sequenceVisitor.getSequences();
+	}
+
 	class TrieNode {
 
 		private int keyEvent;
@@ -226,7 +241,7 @@ public class Trie<k> {
 		private int depth;
 
 		TrieNode(TrieNode parent, int keyEvent) {
-			childrend = new TreeMap<Integer, TrieNode>();
+			childrend = new TreeMap<>();
 			this.keyEvent = keyEvent;
 			counter = 0;
 			this.parent = parent;
@@ -240,7 +255,7 @@ public class Trie<k> {
 		private TrieNode(TrieNode nodeToClone, TrieNode parentNode) {
 			this(parentNode, nodeToClone.keyEvent);
 			counter = nodeToClone.counter;
-			childrend = new TreeMap<Integer, TrieNode>();
+			childrend = new TreeMap<>();
 			for (Map.Entry<Integer, TrieNode> entry : nodeToClone.childrend.entrySet()) {
 				childrend.put(entry.getKey(), entry.getValue().clone(this));
 			}
@@ -286,6 +301,82 @@ public class Trie<k> {
 
 		int getDepth() {
 			return depth;
+		}
+
+		public String getDebugString() {
+			return root.getDebugString();
+		}
+
+	}
+
+	private class SequenceVisitor implements TrieVisitor<k> {
+
+		private List<List<Tuple<k, Integer>>> sequences;
+
+		private List<Tuple<k, Integer>> currentSequence;
+
+		private SequenceVisitor() {
+			sequences = new ArrayList<>();
+			currentSequence = new ArrayList<>();
+		}
+
+		@Override
+		public void visit(k element, int count, int depth, int children) {
+			if (depth <= currentSequence.size()) {
+				addSequence(currentSequence);// add new longer sequence
+			}
+			while (depth >= currentSequence.size()) {
+				currentSequence.remove(currentSequence.size() - 1);
+			}
+			currentSequence.add(new Tuple<>(element, count));
+		}
+
+		public List<List<Tuple<k, Integer>>> getSequences() {
+			addSequence(currentSequence);// add last sequence
+			return sequences;
+		}
+
+		private void addSequence(List<Tuple<k, Integer>> sequence) {
+			List<Tuple<k, Integer>> copy = new ArrayList<>(sequence.size());
+			copy.addAll(sequence);
+			sequences.add(copy);
+		}
+	}
+
+	private class TriePrinter implements TrieVisitor<k> {
+
+		private Vector<StringBuilder> stringBuilders;
+
+		private int charactersAdded;
+
+		private TriePrinter() {
+			stringBuilders = new Vector<StringBuilder>();
+			charactersAdded = 0;
+		}
+
+		protected String getString() {
+			StringBuilder sb = new StringBuilder();
+			for (StringBuilder stringBuilder : stringBuilders) {
+				sb.append(stringBuilder).append('\n');
+			}
+			return sb.toString();
+		}
+
+		public void visit(k object, int count, int deep, int children) {
+			while (stringBuilders.size() <= deep) {
+				StringBuilder sb = new StringBuilder();
+				stringBuilders.add(sb);
+			}
+			StringBuilder sb = stringBuilders.get(deep);
+			while (sb.length() < charactersAdded) {
+				sb.append(' ');
+			}
+			String objectString = "null ";
+			if (object != null) {
+				objectString = object.toString() + " ";
+			}
+			sb.append(objectString);
+			charactersAdded += objectString.length();
 		}
 
 	}
