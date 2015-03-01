@@ -30,11 +30,10 @@ public class Trie<k> {
 
 	private int totalCounter = 0;
 
-	public Trie() {
-		this(0);
-	}
-
 	public Trie(int maximumDepth) {
+		if (maximumDepth <= 0) {
+			throw new RuntimeException("Sequences require a limit in depth");
+		}
 		this.maxDepth = maximumDepth;
 	}
 
@@ -56,7 +55,7 @@ public class Trie<k> {
 	}
 
 	public void add(List<k> events) {
-		if (maxDepth > 0 && events.size() > maxDepth) {
+		if (events.size() > maxDepth) {
 			throw new RuntimeException("Sequence is longer than expected");
 		}
 		depth = Math.max(depth, events.size());
@@ -69,18 +68,23 @@ public class Trie<k> {
 	}
 
 	public void addToSequence(k event) {
-		if (maxDepth <= 0) {
-			throw new RuntimeException("Sequences require a limit in depth");
-		}
 		sequence.addLast(getKey(event));
+		boolean newSequence = false;
 		if (sequence.size() > maxDepth) {
 			sequence.removeFirst();
+			newSequence = true;
 		} else {
 			depth = Math.max(depth, sequence.size());
 		}
 		TrieNode currentNode = root;
 		for (int keys : sequence) {
 			currentNode = getOrCreateChildNode(currentNode, keys);
+			if (newSequence) {
+				currentNode.increaseCounter();
+				totalCounter++;
+			}
+		}
+		if (!newSequence) {
 			currentNode.increaseCounter();
 			totalCounter++;
 		}
@@ -169,6 +173,10 @@ public class Trie<k> {
 		return totalCounter;
 	}
 
+	public Trie<k> clone() {
+		return new Trie<>(this);
+	}
+
 	public void merge(Trie<k> trie) {
 		int[] trieEventsTranslator = new int[trie.eventNamesVector.size()];
 		for (int i = 0; i < trieEventsTranslator.length; i++) {
@@ -190,7 +198,7 @@ public class Trie<k> {
 	}
 
 	public Trie<k> reverse() {
-		Trie<k> reservedTrie = new Trie<k>();
+		Trie<k> reservedTrie = new Trie<k>(maxDepth);
 		reservedTrie.eventNamesMap.putAll(eventNamesMap);
 		reservedTrie.eventNamesVector.addAll(eventNamesVector);
 		reservedTrie.size = size;
@@ -322,10 +330,10 @@ public class Trie<k> {
 
 		@Override
 		public void visit(k element, int count, int depth, int children) {
-			if (depth <= currentSequence.size()) {
+			if (depth < currentSequence.size()) {
 				addSequence(currentSequence);// add new longer sequence
 			}
-			while (depth >= currentSequence.size()) {
+			while (depth < currentSequence.size() && currentSequence.size() > 0) {
 				currentSequence.remove(currentSequence.size() - 1);
 			}
 			currentSequence.add(new Tuple<>(element, count));
@@ -371,9 +379,9 @@ public class Trie<k> {
 			while (sb.length() < charactersAdded) {
 				sb.append(' ');
 			}
-			String objectString = "null ";
+			String objectString = "null " + count;
 			if (object != null) {
-				objectString = object.toString() + " ";
+				objectString = object.toString() + " " + count + " ";
 			}
 			sb.append(objectString);
 			charactersAdded += objectString.length();
