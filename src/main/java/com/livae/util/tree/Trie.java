@@ -123,7 +123,7 @@ public class Trie<k> {
 
 	private void visitPreOrder(TrieVisitor<k> visitor, TrieNode node) {
 		visitor.visit(eventNamesVector.get(node.getKeyEvent()), node.getCounter(), node.getDepth(),
-		              node.getChildren().size());
+		              node.getChildren().size(), node.getChildrenSize());
 		for (TrieNode n : node.getChildren()) {
 			visitPreOrder(visitor, n);
 		}
@@ -140,7 +140,7 @@ public class Trie<k> {
 			visitPostOrder(visitor, n);
 		}
 		visitor.visit(eventNamesVector.get(node.getKeyEvent()), node.getCounter(), node.getDepth(),
-		              node.getChildren().size());
+		              node.getChildren().size(), node.getChildrenSize());
 	}
 
 	public void visitBreadth(TrieVisitor<k> visitor) {
@@ -157,7 +157,7 @@ public class Trie<k> {
 				nodesQueue.addAll(children);
 			}
 			visitor.visit(eventNamesVector.get(head.getKeyEvent()), head.getCounter(),
-			              head.getDepth(), childrenSize);
+			              head.getDepth(), childrenSize, head.getChildrenSize());
 		}
 	}
 
@@ -180,7 +180,7 @@ public class Trie<k> {
 	public void merge(Trie<k> trie) {
 		int[] trieEventsTranslator = new int[trie.eventNamesVector.size()];
 		for (int i = 0; i < trieEventsTranslator.length; i++) {
-			trieEventsTranslator[0] = getKey(trie.eventNamesVector.get(i));
+			trieEventsTranslator[i] = getKey(trie.eventNamesVector.get(i));
 		}
 		merge(root, trie.root, trieEventsTranslator);
 		maxDepth = Math.max(maxDepth, trie.maxDepth);
@@ -198,30 +198,9 @@ public class Trie<k> {
 	}
 
 	public Trie<k> reverse() {
-		Trie<k> reservedTrie = new Trie<k>(maxDepth);
-		reservedTrie.eventNamesMap.putAll(eventNamesMap);
-		reservedTrie.eventNamesVector.addAll(eventNamesVector);
-		reservedTrie.size = size;
-		reservedTrie.depth = depth;
-		reservedTrie.totalCounter = totalCounter;
-		reservedTrie.maxDepth = maxDepth;
-		reverse(root, reservedTrie, new LinkedList<TrieNode>());
-		return reservedTrie;
-	}
-
-	private void reverse(TrieNode currentNode, Trie<k> reversedTrie,
-	                     List<TrieNode> reversedSequence) {
-		TrieNode reversedCurrentNode = reversedTrie.root;
-		for (TrieNode reversedNode : reversedSequence) {
-			reversedCurrentNode = reversedTrie.getOrCreateChildNode(reversedCurrentNode,
-			                                                        reversedNode.keyEvent);
-			reversedCurrentNode.counter += reversedNode.counter;
-		}
-		for (TrieNode node : currentNode.getChildren()) {
-			reversedSequence.add(0, node);
-			reverse(node, reversedTrie, reversedSequence);
-			reversedSequence.remove(0);
-		}
+		ReverseVisitor reverseVisitor = new ReverseVisitor();
+		visitPreOrder(reverseVisitor);
+		return reverseVisitor.getReversedTrie();
 	}
 
 	public String getDebugString() {
@@ -230,7 +209,7 @@ public class Trie<k> {
 		return v.getString();
 	}
 
-	public List<List<Tuple<k, Integer>>> getSequences() {
+	public List<Tuple<List<k>, Integer>> getSequences() {
 		SequenceVisitor sequenceVisitor = new SequenceVisitor();
 		visitPreOrder(sequenceVisitor);
 		return sequenceVisitor.getSequences();
@@ -248,7 +227,7 @@ public class Trie<k> {
 
 		private int depth;
 
-		TrieNode(TrieNode parent, int keyEvent) {
+		private TrieNode(TrieNode parent, int keyEvent) {
 			childrend = new TreeMap<>();
 			this.keyEvent = keyEvent;
 			counter = 0;
@@ -269,45 +248,45 @@ public class Trie<k> {
 			}
 		}
 
-		TrieNode clone(TrieNode newParentNode) {
+		private TrieNode clone(TrieNode newParentNode) {
 			return new TrieNode(this, newParentNode);
 		}
 
-		void increaseCounter() {
+		private void increaseCounter() {
 			counter++;
 		}
 
-		int getCounter() {
+		private int getCounter() {
 			return counter;
 		}
 
-		boolean containsChild(int key) {
+		private boolean containsChild(int key) {
 			return childrend.containsKey(key);
 		}
 
-		TrieNode getChild(int key) {
+		private TrieNode getChild(int key) {
 			return childrend.get(key);
 		}
 
-		TrieNode createChild(int key) {
+		private TrieNode createChild(int key) {
 			TrieNode node = new TrieNode(this, key);
 			childrend.put(key, node);
 			return node;
 		}
 
-		int getKeyEvent() {
+		private int getKeyEvent() {
 			return keyEvent;
 		}
 
-		TrieNode getParent() {
+		private TrieNode getParent() {
 			return parent;
 		}
 
-		Collection<TrieNode> getChildren() {
+		private Collection<TrieNode> getChildren() {
 			return childrend.values();
 		}
 
-		int getDepth() {
+		private int getDepth() {
 			return depth;
 		}
 
@@ -315,13 +294,20 @@ public class Trie<k> {
 			return root.getDebugString();
 		}
 
+		private int getChildrenSize() {
+			int size = 0;
+			for (TrieNode childNode : childrend.values()) {
+				size += childNode.getCounter();
+			}
+			return size;
+		}
 	}
 
 	private class SequenceVisitor implements TrieVisitor<k> {
 
-		private List<List<Tuple<k, Integer>>> sequences;
+		private List<Tuple<List<k>, Integer>> sequences;
 
-		private List<Tuple<k, Integer>> currentSequence;
+		private List<k> currentSequence;
 
 		private SequenceVisitor() {
 			sequences = new ArrayList<>();
@@ -329,25 +315,50 @@ public class Trie<k> {
 		}
 
 		@Override
-		public void visit(k element, int count, int depth, int children) {
-			if (depth < currentSequence.size()) {
-				addSequence(currentSequence);// add new longer sequence
-			}
+		public void visit(k element, int count, int depth, int children, int childrenCount) {
 			while (depth < currentSequence.size() && currentSequence.size() > 0) {
 				currentSequence.remove(currentSequence.size() - 1);
 			}
-			currentSequence.add(new Tuple<>(element, count));
+			currentSequence.add(element);
+			if (children == 0) {
+				addSequence(currentSequence, count);// add new longer sequence
+			} else if (childrenCount < count) {
+				addSequence(currentSequence, count - childrenCount);// add new short sequence
+			}
 		}
 
-		public List<List<Tuple<k, Integer>>> getSequences() {
-			addSequence(currentSequence);// add last sequence
+		private List<Tuple<List<k>, Integer>> getSequences() {
 			return sequences;
 		}
 
-		private void addSequence(List<Tuple<k, Integer>> sequence) {
-			List<Tuple<k, Integer>> copy = new ArrayList<>(sequence.size());
+		protected void addSequence(List<k> sequence, int times) {
+			List<k> copy = new ArrayList<>();
 			copy.addAll(sequence);
-			sequences.add(copy);
+			sequences.add(new Tuple<>(copy, times));
+		}
+	}
+
+	private class ReverseVisitor extends SequenceVisitor {
+
+		private Trie<k> reversedTrie;
+
+		private ReverseVisitor() {
+			reversedTrie = new Trie<k>(maxDepth);
+		}
+
+		@Override
+		protected void addSequence(List<k> sequence, int times) {
+			ArrayList<k> reversedSequence = new ArrayList<>(sequence.size());
+			for (int i = sequence.size() - 1; i >= 0; i--) {
+				reversedSequence.add(sequence.get(i));
+			}
+			for (int i = 0; i < times; i++) {
+				reversedTrie.add(reversedSequence);
+			}
+		}
+
+		public Trie<k> getReversedTrie() {
+			return reversedTrie;
 		}
 	}
 
@@ -370,7 +381,7 @@ public class Trie<k> {
 			return sb.toString();
 		}
 
-		public void visit(k object, int count, int deep, int children) {
+		public void visit(k object, int count, int deep, int children, int childrenCount) {
 			while (stringBuilders.size() <= deep) {
 				StringBuilder sb = new StringBuilder();
 				stringBuilders.add(sb);
