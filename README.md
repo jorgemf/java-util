@@ -16,6 +16,15 @@
   - neural networks with backpropagation (planned)
   - recurrent neural networks with backpropagation through time (planned)
 
+We strongly suggest you not to use the library in a production project, only for testing or play
+with it. You can add it to your gradle project:
+
+```Gradle
+dependencies {
+    compile 'com.livae:java-util:0.1'
+}
+```
+
 ## License
 
     Copyright 2014, 2015 Jorge Muñoz Fuentes
