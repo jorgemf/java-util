@@ -13,6 +13,8 @@ public class QuaternionTest {
 
 	@Test
 	public void testFromEulerXYZRadians() throws Exception {
+		Quaternion q = new Quaternion();
+		q.setFromEulerXYZDegrees(90,0,90);
 		fail();
 	}
 

@@ -8,19 +8,19 @@ package com.livae.util.math;
  */
 public class Quaternion {
 
-	private final static float TOLERANCE = 0.00001f;
+	private final static double TOLERANCE = 0.0000001;
 
-	private final static float PIOVER180 = (float) (Math.PI / 180);
+	private final static double PIOVER180 = (double) (Math.PI / 180);
 
-	private float x;
+	private double x;
 
-	private float y;
+	private double y;
 
-	private float z;
+	private double z;
 
-	private float w;
+	private double w;
 
-	private float[] matrix;
+	private double[] matrix;
 
 	private boolean updateMatrix;
 
@@ -47,29 +47,29 @@ public class Quaternion {
 		}
 	}
 
-	public Quaternion(float x, float y, float z, float w) {
+	public Quaternion(double x, double y, double z, double w) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.w = w;
-		matrix = new float[16];
+		matrix = new double[16];
 		normalise();
 		this.updateMatrix = true;
 	}
 
-	public final float getX() {
+	public final double getX() {
 		return x;
 	}
 
-	public final float getY() {
+	public final double getY() {
 		return y;
 	}
 
-	public final float getZ() {
+	public final double getZ() {
 		return z;
 	}
 
-	public final float getW() {
+	public final double getW() {
 		return w;
 	}
 
@@ -86,9 +86,9 @@ public class Quaternion {
 	// 0.00001f to get accurate results
 	private void normalise() {
 		// Don't normalize if we don't have to
-		float mag2 = w * w + x * x + y * y + z * z;
+		double mag2 = w * w + x * x + y * y + z * z;
 		if (Math.abs(mag2) > TOLERANCE && Math.abs(mag2 - 1.0f) > TOLERANCE) {
-			float mag = (float) Math.sqrt(mag2);
+			double mag = Math.sqrt(mag2);
 			w /= mag;
 			x /= mag;
 			y /= mag;
@@ -109,10 +109,10 @@ public class Quaternion {
 
 	// Multiplying q1 with q2 applies the rotation q2 to q1
 	public final void rotate(Quaternion rq) {
-		float newX = w * rq.x + x * rq.w + y * rq.z - z * rq.y;
-		float newY = w * rq.y + y * rq.w + z * rq.x - x * rq.z;
-		float newZ = w * rq.z + z * rq.w + x * rq.y - y * rq.x;
-		float newW = w * rq.w - x * rq.x - y * rq.y - z * rq.z;
+		double newX = w * rq.x + x * rq.w + y * rq.z - z * rq.y;
+		double newY = w * rq.y + y * rq.w + z * rq.x - x * rq.z;
+		double newZ = w * rq.z + z * rq.w + x * rq.y - y * rq.x;
+		double newW = w * rq.w - x * rq.x - y * rq.y - z * rq.z;
 
 		x = newX;
 		y = newY;
@@ -124,46 +124,46 @@ public class Quaternion {
 
 	//http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 	/*
-	public float getXAngleRadians(){
-		return (float)Math.atan2(2*(w*x+y*z), 1-2*(x*x+y*y));
+	public double getXAngleRadians(){
+		return (double)Math.atan2(2*(w*x+y*z), 1-2*(x*x+y*y));
 	}
 	
-	public float getYAngleRadians(){
-		return (float)Math.asin(2*(w*y-x*z));
+	public double getYAngleRadians(){
+		return (double)Math.asin(2*(w*y-x*z));
 	}
 	
-	public float getZAngleRadians(){
-		return (float)Math.atan2(2*(w*z+y*x), 1-2*(z*z+y*y));
+	public double getZAngleRadians(){
+		return (double)Math.atan2(2*(w*z+y*x), 1-2*(z*z+y*y));
 	}
 	*/
 
-	public final void setFromEulerXYZDegrees(float x, float y, float z) {
+	public final void setFromEulerXYZDegrees(double x, double y, double z) {
 		setFromEulerXYZRadians(x * PIOVER180 / 2, y * PIOVER180 / 2, z * PIOVER180 / 2);
 	}
 
-	public final void setFromEulerPWRdegress(float roll, float pitch, float yaw) {
+	public final void setFromEulerPWRdegress(double roll, double pitch, double yaw) {
 		setFromEulerXYZRadians(roll * PIOVER180 / 2, pitch * PIOVER180 / 2, yaw * PIOVER180 / 2);
 	}
 
-	public final void setFromEulerPWRradians(float roll, float pitch, float yaw) {
+	public final void setFromEulerPWRradians(double roll, double pitch, double yaw) {
 		setFromEulerXYZRadians(roll, pitch, yaw);
 	}
 
-	public final void setFromEulerXYZRadians(float rx, float ry, float rz) {
+	public final void setFromEulerXYZRadians(double rx, double ry, double rz) {
 		// Convert from Euler Angles
 		// Basically we create 3 Quaternions, one for pitch, one for yaw, one for roll
 		// and multiply those together.The calculation below does the same, just shorter
 
-		float roll = rx;
-		float pitch = ry;
-		float yaw = rz;
+		double roll = rx;
+		double pitch = ry;
+		double yaw = rz;
 
-		float sinp = (float) Math.sin(pitch);
-		float siny = (float) Math.sin(yaw);
-		float sinr = (float) Math.sin(roll);
-		float cosp = (float) Math.cos(pitch);
-		float cosy = (float) Math.cos(yaw);
-		float cosr = (float) Math.cos(roll);
+		double sinp = (double) Math.sin(pitch);
+		double siny = (double) Math.sin(yaw);
+		double sinr = (double) Math.sin(roll);
+		double cosp = (double) Math.cos(pitch);
+		double cosy = (double) Math.cos(yaw);
+		double cosr = (double) Math.cos(roll);
 
 		x = sinr * cosp * cosy - cosr * sinp * siny;
 		y = cosr * sinp * cosy + sinr * cosp * siny;
@@ -178,7 +178,7 @@ public class Quaternion {
 	 *
 	 * @return a rotation matrix which represents the quaternion
 	 */
-	public final float[] getMatrix() {
+	public final double[] getMatrix() {
 		if (updateMatrix) {
 			calculateMatrix();
 			updateMatrix = false;
@@ -187,15 +187,15 @@ public class Quaternion {
 	}
 
 	private void calculateMatrix() {
-		float x2 = x * x;
-		float y2 = y * y;
-		float z2 = z * z;
-		float xy = x * y;
-		float xz = x * z;
-		float yz = y * z;
-		float wx = w * x;
-		float wy = w * y;
-		float wz = w * z;
+		double x2 = x * x;
+		double y2 = y * y;
+		double z2 = z * z;
+		double xy = x * y;
+		double xz = x * z;
+		double yz = y * z;
+		double wx = w * x;
+		double wy = w * y;
+		double wz = w * z;
 
 		// This calculation would be a lot more complicated for non-unit length quaternions
 		matrix[0] = 1.0f - 2.0f * (y2 + z2);
@@ -216,7 +216,7 @@ public class Quaternion {
 		matrix[15] = 1.0f;
 	}
 
-	public final boolean isEquals(float x, float y, float z, float w) {
+	public final boolean isEquals(double x, double y, double z, double w) {
 		return this.x == x && this.y == y && this.z == z && this.w == w;
 	}
 
@@ -224,7 +224,7 @@ public class Quaternion {
 		return this.x == q.x && this.y == q.y && this.z == q.z && this.w == q.w;
 	}
 
-	public final void setValues(float x, float y, float z, float w) {
+	public final void setValues(double x, double y, double z, double w) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -268,7 +268,7 @@ public class Quaternion {
 			z = 1;
 			w = 0;
 		} else {
-			w = (float) (lengths + dot);
+			w = (double) (lengths + dot);
 			final Vector3f auxVector = new Vector3f();
 			auxVector.cross(v, u);
 			x = auxVector.x;
